@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "framework": "nextjs",
+  "env": {
+    "NEXTAUTH_URL": "https://practicegenius.online",
+    "NEXTAUTH_SECRET": "temporary_secret_for_deployment_replace_in_vercel_dashboard",
+    "NEXT_PUBLIC_API_URL": "https://api.practicegenius.online"
+  }
+}

@@ -1,0 +1,276 @@
+"use client";
+
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { usePathname } from 'next/navigation';
+
+interface HeaderProps {
+  isLoggedIn: boolean;
+  userRole?: string;
+  onLogout?: () => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ 
+  isLoggedIn = false, 
+  userRole = 'user',
+  onLogout 
+}) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const pathname = usePathname();
+
+  // Handle scroll event to change header style
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 10) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Toggle mobile menu
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  return (
+    <header 
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled ? 'bg-white shadow-md py-2' : 'bg-transparent py-4'
+      }`}
+    >
+      <div className="container-custom flex items-center justify-between">
+        {/* Logo */}
+        <Link href="/" className="flex items-center">
+          <img 
+            src="/images/Logo3.png" 
+            alt="PracticeGenius Logo" 
+            className="mr-2 h-10 w-auto object-contain"
+          />
+          <span className="text-xl font-bold text-primary">
+            Practice<span className="text-secondary">Genius</span>
+          </span>
+        </Link>
+
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center space-x-8">
+          <Link 
+            href="/" 
+            className={`font-medium hover:text-primary transition-colors ${
+              pathname === '/' ? 'text-primary' : 'text-secondary'
+            }`}
+          >
+            Home
+          </Link>
+          <Link 
+            href="/worksheets" 
+            className={`font-medium hover:text-primary transition-colors ${
+              pathname?.startsWith('/worksheets') ? 'text-primary' : 'text-secondary'
+            }`}
+          >
+            Worksheets
+          </Link>
+          <Link 
+            href="/pricing" 
+            className={`font-medium hover:text-primary transition-colors ${
+              pathname === '/pricing' ? 'text-primary' : 'text-secondary'
+            }`}
+          >
+            Pricing
+          </Link>
+          <Link 
+            href="/about" 
+            className={`font-medium hover:text-primary transition-colors ${
+              pathname === '/about' ? 'text-primary' : 'text-secondary'
+            }`}
+          >
+            About
+          </Link>
+          <Link 
+            href="/contact" 
+            className={`font-medium hover:text-primary transition-colors ${
+              pathname === '/contact' ? 'text-primary' : 'text-secondary'
+            }`}
+          >
+            Contact
+          </Link>
+        </nav>
+
+        {/* Auth Buttons or User Menu */}
+        <div className="hidden md:flex items-center space-x-4">
+          {isLoggedIn ? (
+            <div className="relative group">
+              <button className="flex items-center space-x-2 btn btn-primary py-2">
+                <span>My Account</span>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 invisible group-hover:visible transition-all opacity-0 group-hover:opacity-100">
+                <Link href="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                  Dashboard
+                </Link>
+                <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                  Profile
+                </Link>
+                {userRole === 'admin' && (
+                  <Link href="/admin" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    Admin Panel
+                  </Link>
+                )}
+                <button 
+                  onClick={onLogout} 
+                  className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <Link href="/login" className="btn btn-outline py-2">
+                Login
+              </Link>
+              <Link href="/register" className="btn btn-primary py-2">
+                Register
+              </Link>
+            </>
+          )}
+        </div>
+
+        {/* Mobile Menu Button */}
+        <button 
+          className="md:hidden text-secondary" 
+          onClick={toggleMenu}
+          aria-label="Toggle menu"
+        >
+          {isMenuOpen ? (
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          )}
+        </button>
+      </div>
+
+      {/* Mobile Menu */}
+      <div className={`md:hidden bg-white ${isMenuOpen ? 'block' : 'hidden'}`}>
+        <div className="container-custom py-4 space-y-4">
+          <Link 
+            href="/" 
+            className={`block font-medium py-2 ${
+              pathname === '/' ? 'text-primary' : 'text-secondary'
+            }`}
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Home
+          </Link>
+          <Link 
+            href="/worksheets" 
+            className={`block font-medium py-2 ${
+              pathname?.startsWith('/worksheets') ? 'text-primary' : 'text-secondary'
+            }`}
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Worksheets
+          </Link>
+          <Link 
+            href="/pricing" 
+            className={`block font-medium py-2 ${
+              pathname === '/pricing' ? 'text-primary' : 'text-secondary'
+            }`}
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Pricing
+          </Link>
+          <Link 
+            href="/about" 
+            className={`block font-medium py-2 ${
+              pathname === '/about' ? 'text-primary' : 'text-secondary'
+            }`}
+            onClick={() => setIsMenuOpen(false)}
+          >
+            About
+          </Link>
+          <Link 
+            href="/contact" 
+            className={`block font-medium py-2 ${
+              pathname === '/contact' ? 'text-primary' : 'text-secondary'
+            }`}
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Contact
+          </Link>
+
+          {/* Auth Links */}
+          <div className="pt-4 border-t border-gray-200">
+            {isLoggedIn ? (
+              <>
+                <Link 
+                  href="/dashboard" 
+                  className="block font-medium py-2 text-secondary"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Dashboard
+                </Link>
+                <Link 
+                  href="/profile" 
+                  className="block font-medium py-2 text-secondary"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Profile
+                </Link>
+                {userRole === 'admin' && (
+                  <Link 
+                    href="/admin" 
+                    className="block font-medium py-2 text-secondary"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Admin Panel
+                  </Link>
+                )}
+                <button 
+                  onClick={() => {
+                    if (onLogout) onLogout();
+                    setIsMenuOpen(false);
+                  }} 
+                  className="block w-full text-left font-medium py-2 text-red-600"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <div className="flex flex-col space-y-2">
+                <Link 
+                  href="/login" 
+                  className="btn btn-outline w-full"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Login
+                </Link>
+                <Link 
+                  href="/register" 
+                  className="btn btn-primary w-full"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Register
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+};
+
+export default Header;
