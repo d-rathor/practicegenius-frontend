@@ -5,22 +5,17 @@ import MainLayout from '@/components/MainLayout';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-
-interface Worksheet {
-  id: string;
-  title: string;
-  subject: string;
-  grade: number;
-  plan: 'Free' | 'Essential' | 'Premium';
-  thumbnailUrl: string;
-  downloadUrl: string;
-  description: string;
-}
+import { useSession } from 'next-auth/react';
+import { useWorksheets, Worksheet } from '@/contexts/WorksheetContext';
 
 export default function WorksheetsPage() {
   const router = useRouter();
-  const [worksheets, setWorksheets] = useState<Worksheet[]>([]);
+  const { data: session } = useSession();
+  const { getUserDownloadedWorksheets } = useWorksheets();
+  
+  const [userDownloads, setUserDownloads] = useState<Worksheet[]>([]);
   const [userPlan, setUserPlan] = useState<string>('Free');
+  const [userId, setUserId] = useState<string>('guest');
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState({
     subject: 'all',
@@ -36,131 +31,40 @@ export default function WorksheetsPage() {
   const navigateToProfile = () => router.push('/dashboard/profile');
   const navigateToSupport = () => router.push('/dashboard/support');
 
-  // Sample worksheets data - in a real app, this would come from an API
-  const sampleWorksheets: Worksheet[] = [
-    {
-      id: '1',
-      title: 'Addition and Subtraction',
-      subject: 'Mathematics',
-      grade: 1,
-      plan: 'Free',
-      thumbnailUrl: '/images/worksheets/math-grade1-1.jpg',
-      downloadUrl: '/worksheets/math-grade1-addition.pdf',
-      description: 'Practice basic addition and subtraction with numbers 1-20.'
-    },
-    {
-      id: '2',
-      title: 'Shapes and Patterns',
-      subject: 'Mathematics',
-      grade: 1,
-      plan: 'Free',
-      thumbnailUrl: '/images/worksheets/math-grade1-2.jpg',
-      downloadUrl: '/worksheets/math-grade1-shapes.pdf',
-      description: 'Learn to identify and draw basic shapes and patterns.'
-    },
-    {
-      id: '3',
-      title: 'Multiplication Tables (1-5)',
-      subject: 'Mathematics',
-      grade: 2,
-      plan: 'Essential',
-      thumbnailUrl: '/images/worksheets/math-grade2-1.jpg',
-      downloadUrl: '/worksheets/math-grade2-multiplication.pdf',
-      description: 'Practice multiplication tables from 1 to 5.'
-    },
-    {
-      id: '4',
-      title: 'Fractions Introduction',
-      subject: 'Mathematics',
-      grade: 3,
-      plan: 'Essential',
-      thumbnailUrl: '/images/worksheets/math-grade3-1.jpg',
-      downloadUrl: '/worksheets/math-grade3-fractions.pdf',
-      description: 'Introduction to basic fractions and their representations.'
-    },
-    {
-      id: '5',
-      title: 'Advanced Problem Solving',
-      subject: 'Mathematics',
-      grade: 5,
-      plan: 'Premium',
-      thumbnailUrl: '/images/worksheets/math-grade5-1.jpg',
-      downloadUrl: '/worksheets/math-grade5-problems.pdf',
-      description: 'Complex word problems requiring multiple mathematical operations.'
-    },
-    {
-      id: '6',
-      title: 'Plants and Animals',
-      subject: 'Science',
-      grade: 1,
-      plan: 'Free',
-      thumbnailUrl: '/images/worksheets/science-grade1-1.jpg',
-      downloadUrl: '/worksheets/science-grade1-plants.pdf',
-      description: 'Learn about different plants and animals and their basic characteristics.'
-    },
-    {
-      id: '7',
-      title: 'Weather and Seasons',
-      subject: 'Science',
-      grade: 2,
-      plan: 'Essential',
-      thumbnailUrl: '/images/worksheets/science-grade2-1.jpg',
-      downloadUrl: '/worksheets/science-grade2-weather.pdf',
-      description: 'Understand different weather patterns and seasons.'
-    },
-    {
-      id: '8',
-      title: 'Solar System',
-      subject: 'Science',
-      grade: 4,
-      plan: 'Premium',
-      thumbnailUrl: '/images/worksheets/science-grade4-1.jpg',
-      downloadUrl: '/worksheets/science-grade4-solarsystem.pdf',
-      description: 'Explore the planets and other objects in our solar system.'
-    },
-    {
-      id: '9',
-      title: 'Alphabet Practice',
-      subject: 'English',
-      grade: 1,
-      plan: 'Free',
-      thumbnailUrl: '/images/worksheets/english-grade1-1.jpg',
-      downloadUrl: '/worksheets/english-grade1-alphabet.pdf',
-      description: 'Practice writing uppercase and lowercase letters.'
-    },
-    {
-      id: '10',
-      title: 'Reading Comprehension',
-      subject: 'English',
-      grade: 3,
-      plan: 'Essential',
-      thumbnailUrl: '/images/worksheets/english-grade3-1.jpg',
-      downloadUrl: '/worksheets/english-grade3-reading.pdf',
-      description: 'Short stories with comprehension questions to improve reading skills.'
-    },
-    {
-      id: '11',
-      title: 'Grammar Essentials',
-      subject: 'English',
-      grade: 4,
-      plan: 'Premium',
-      thumbnailUrl: '/images/worksheets/english-grade4-1.jpg',
-      downloadUrl: '/worksheets/english-grade4-grammar.pdf',
-      description: 'Advanced grammar exercises including parts of speech and sentence structure.'
-    }
-  ];
-
-  // Get user data from session
+  // Get user data from session and fetch downloaded worksheets
   useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
-        const sessionData = localStorage.getItem('practicegenius_session');
-        if (sessionData) {
-          const session = JSON.parse(sessionData);
-          if (session.user && session.user.subscriptionPlan) {
-            // Extract just the plan name (Free, Essential, Premium)
-            const planName = session.user.subscriptionPlan.split(' ')[0];
-            setUserPlan(planName);
+        // First check for NextAuth session data
+        if (session && session.user) {
+          console.log('Using NextAuth session:', session.user);
+          // Use the email as the user ID if no specific ID is available
+          const userIdValue = session.user.id || session.user.email || 'guest';
+          setUserId(userIdValue);
+          
+          // Set a default plan if not available in the session
+          // @ts-ignore - TypeScript doesn't know about the subscriptionPlan property
+          const planName = session.user.subscriptionPlan || 'Free';
+          setUserPlan(planName);
+        } else {
+          // Fall back to localStorage session if NextAuth session is not available
+          const sessionData = localStorage.getItem('practicegenius_session');
+          if (sessionData) {
+            const sessionObj = JSON.parse(sessionData);
+            if (sessionObj.user) {
+              console.log('Using localStorage session:', sessionObj.user);
+              // Set user ID
+              if (sessionObj.user.id || sessionObj.user.email) {
+                setUserId(sessionObj.user.id || sessionObj.user.email);
+              }
+              
+              // Set user subscription plan
+              if (sessionObj.user.subscriptionPlan) {
+                // Extract just the plan name (Free, Essential, Premium)
+                const planName = sessionObj.user.subscriptionPlan.split(' ')[0];
+                setUserPlan(planName);
+              }
+            }
           }
         }
       } catch (error) {
@@ -171,40 +75,41 @@ export default function WorksheetsPage() {
       // For now, we'll use the sample data and filter it based on the user's plan
       setLoading(false);
     }
-  }, []);
-
-  // Filter worksheets based on user's plan and selected filters
+  }, [session]);
+  
+  // Fetch user's downloaded worksheets whenever userId changes
   useEffect(() => {
-    let filteredWorksheets = [...sampleWorksheets];
-    
-    // Filter by user's subscription plan
-    if (userPlan === 'Free') {
-      filteredWorksheets = filteredWorksheets.filter(worksheet => worksheet.plan === 'Free');
-    } else if (userPlan === 'Essential') {
-      filteredWorksheets = filteredWorksheets.filter(worksheet => 
-        worksheet.plan === 'Free' || worksheet.plan === 'Essential'
-      );
-    } else if (userPlan === 'Premium') {
-      // Premium users can access all worksheets
-      filteredWorksheets = filteredWorksheets;
+    if (userId !== 'guest') {
+      // Get worksheets downloaded by this user
+      const downloadedWorksheets = getUserDownloadedWorksheets(userId);
+      setUserDownloads(downloadedWorksheets);
+      console.log('User downloaded worksheets:', downloadedWorksheets.length);
     }
+  }, [userId, getUserDownloadedWorksheets]);
+
+  // Filter downloaded worksheets based on selected filters
+  const [filteredDownloads, setFilteredDownloads] = useState<Worksheet[]>([]);
+  
+  useEffect(() => {
+    // Start with all user downloads
+    let filtered = [...userDownloads];
     
     // Apply subject filter if not 'all'
     if (filter.subject !== 'all') {
-      filteredWorksheets = filteredWorksheets.filter(
-        worksheet => worksheet.subject === filter.subject
+      filtered = filtered.filter(
+        worksheet => worksheet.subject.toLowerCase() === filter.subject.toLowerCase()
       );
     }
     
     // Apply grade filter if not 'all'
     if (filter.grade !== 'all') {
-      filteredWorksheets = filteredWorksheets.filter(
+      filtered = filtered.filter(
         worksheet => worksheet.grade === parseInt(filter.grade)
       );
     }
     
-    setWorksheets(filteredWorksheets);
-  }, [userPlan, filter, sampleWorksheets]);
+    setFilteredDownloads(filtered);
+  }, [userDownloads, filter]);
 
   // Handle filter changes
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -254,8 +159,8 @@ export default function WorksheetsPage() {
                       </svg>
                     </div>
                     <div>
-                      <h3 className="font-semibold">User</h3>
-                      <p className="text-sm text-gray-600">user@example.com</p>
+                      <h3 className="font-semibold">{session?.user?.name || userId || 'User'}</h3>
+                      <p className="text-sm text-gray-600">{session?.user?.email || userId || 'No email available'}</p>
                       <div className="mt-1">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                           {userPlan} Plan
@@ -434,10 +339,10 @@ export default function WorksheetsPage() {
                 <div className="bg-white rounded-xl shadow-sm p-6 text-center">
                   <p>Loading worksheets...</p>
                 </div>
-              ) : worksheets.length > 0 ? (
+              ) : filteredDownloads.length > 0 ? (
                 <div className="bg-white rounded-xl shadow-sm p-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {worksheets.map((worksheet) => (
+                    {filteredDownloads.map((worksheet) => (
                       <div key={worksheet.id} className="border border-gray-200 rounded-lg overflow-hidden flex flex-col">
                         {/* Worksheet thumbnail - in a real app, use actual thumbnails */}
                         <div className="h-40 bg-gray-100 relative">
@@ -461,7 +366,7 @@ export default function WorksheetsPage() {
                             {worksheet.subject} | Grade {worksheet.grade}
                           </div>
                           <p className="text-sm text-gray-600 mb-4">
-                            {worksheet.description}
+                            {worksheet.topic || 'No description available'}
                           </p>
                           <button
                             onClick={() => alert(`This is a demo. In a production environment, this would download the ${worksheet.title} worksheet.`)}
