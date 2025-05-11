@@ -6,6 +6,7 @@
   NODE_VERSION = "18.17.0"
   NPM_VERSION = "9.6.7"
   NEXT_TELEMETRY_DISABLED = "1"
+  GO_SKIP_INSTALL = "true"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
@@ -13,3 +14,8 @@
 [functions]
   included_files = [".env"]
   node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
