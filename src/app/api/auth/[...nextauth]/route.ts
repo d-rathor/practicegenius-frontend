@@ -60,6 +60,7 @@ export const authConfig = {
   secret: process.env.NEXTAUTH_SECRET || "your-secret-key-change-in-production",
 } satisfies NextAuthConfig;
 
-export const { handlers, auth, signIn, signOut } = NextAuth(authConfig);
+export const { handlers } = NextAuth(authConfig);
 
-export { handlers as GET, handlers as POST };
+export const GET = handlers.GET;
+export const POST = handlers.POST;
