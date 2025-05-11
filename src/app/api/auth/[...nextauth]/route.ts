@@ -1,8 +1,9 @@
 import NextAuth from "next-auth";
+import type { NextAuthConfig } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-const handler = NextAuth({
+export const authConfig = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || "752765499225-qc2hq0h9ppvdqvq5n0l2e2ltsnq9tisj.apps.googleusercontent.com",
@@ -57,6 +58,8 @@ const handler = NextAuth({
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   secret: process.env.NEXTAUTH_SECRET || "your-secret-key-change-in-production",
-});
+} satisfies NextAuthConfig;
 
-export { handler as GET, handler as POST };
+export const { handlers, auth, signIn, signOut } = NextAuth(authConfig);
+
+export { handlers as GET, handlers as POST };
