@@ -1,31 +1,24 @@
-"use client";
-
-import React, { useEffect } from 'react';
+import React, { Suspense } from 'react';
 import MainLayout from '@/components/MainLayout';
-import WorksheetFilters from '@/components/worksheets/WorksheetFilters';
-import WorksheetGrid from '@/components/worksheets/WorksheetGrid';
-import WorksheetSearch from '@/components/worksheets/WorksheetSearch';
-import { useWorksheets } from '@/contexts/WorksheetContext';
+import dynamic from 'next/dynamic';
+
+// Dynamically import client components with no SSR
+const WorksheetFilters = dynamic(
+  () => import('@/components/worksheets/WorksheetFilters'),
+  { ssr: false }
+);
+
+const WorksheetSearch = dynamic(
+  () => import('@/components/worksheets/WorksheetSearch'),
+  { ssr: false }
+);
+
+const WorksheetGridClient = dynamic(
+  () => import('@/components/worksheets/WorksheetGrid'),
+  { ssr: false }
+);
 
 export default function WorksheetsPage() {
-  // Get worksheets from context
-  const { worksheets, getAdminWorksheets } = useWorksheets();
-  
-  // Log worksheets for debugging
-  useEffect(() => {
-    console.log('Total worksheets in context:', worksheets.length);
-    console.log('Admin worksheets:', getAdminWorksheets().length);
-    console.log('Admin worksheet details:', getAdminWorksheets().map(w => ({
-      title: w.title,
-      plan: w.plan || w.subscriptionLevel,
-      createdBy: w.createdBy,
-      isPublic: w.isPublic
-    })));
-  }, [worksheets, getAdminWorksheets]);
-  
-  // Get admin worksheets to display on public page
-  const adminWorksheets = getAdminWorksheets();
-  
   return (
     <MainLayout>
       <div className="bg-background min-h-screen pt-20">
@@ -40,21 +33,27 @@ export default function WorksheetsPage() {
             </p>
           </div>
 
-          {/* Search and Filters */}
-          <div className="mb-8">
-            <WorksheetSearch />
-          </div>
+          {/* Search and Filters - Client Components */}
+          <Suspense fallback={<div>Loading search...</div>}>
+            <div className="mb-8">
+              <WorksheetSearch />
+            </div>
+          </Suspense>
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Filters Sidebar */}
-            <div className="lg:col-span-1">
-              <WorksheetFilters />
-            </div>
+            {/* Filters Sidebar - Client Component */}
+            <Suspense fallback={<div>Loading filters...</div>}>
+              <div className="lg:col-span-1">
+                <WorksheetFilters />
+              </div>
+            </Suspense>
 
-            {/* Worksheets Grid */}
-            <div className="lg:col-span-3">
-              <WorksheetGrid adminWorksheets={adminWorksheets} />
-            </div>
+            {/* Worksheets Grid - Client Component */}
+            <Suspense fallback={<div>Loading worksheets...</div>}>
+              <div className="lg:col-span-3">
+                <WorksheetGridClient />
+              </div>
+            </Suspense>
           </div>
         </div>
       </div>

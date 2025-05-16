@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useWorksheets } from '@/contexts/WorksheetContext';
-import { useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
 
 // Import the Worksheet interface from the context
@@ -25,7 +24,6 @@ interface WorksheetGridProps {
 
 const WorksheetGrid: React.FC<WorksheetGridProps> = ({ adminWorksheets }) => {
   const { worksheets, downloadWorksheet } = useWorksheets();
-  const { data: session } = useSession();
   const searchParams = useSearchParams();
   const [userPlan, setUserPlan] = useState<string>('Free');
   
@@ -211,10 +209,7 @@ const WorksheetGrid: React.FC<WorksheetGridProps> = ({ adminWorksheets }) => {
     let userId = 'guest';
     let userSubscriptionPlan = 'free';
     
-    if (session && session.user && session.user.id) {
-      userId = session.user.id;
-      userSubscriptionPlan = session.user.subscriptionPlan || 'free';
-    } else if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined') {
       try {
         const sessionData = localStorage.getItem('practicegenius_session');
         if (sessionData) {
