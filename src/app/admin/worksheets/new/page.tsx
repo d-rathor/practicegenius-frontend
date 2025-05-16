@@ -71,9 +71,13 @@ export default function AddWorksheetPage() {
         title,
         subject: subject as 'math' | 'science' | 'english',
         grade: parseInt(grade),
-        subscriptionLevel: plan as 'free' | 'essential' | 'premium',
+        // Set both plan and subscriptionLevel to the same value
+        plan: plan.charAt(0).toUpperCase() + plan.slice(1), // Capitalize first letter (Free, Essential, Premium)
+        subscriptionLevel: plan.toLowerCase(), // Lowercase (free, essential, premium)
         topic,
-        fileName: fileName
+        fileName: fileName,
+        createdBy: 'admin', // Mark as created by admin
+        isPublic: true      // Make it visible on public worksheets page
       });
       
       // Success message

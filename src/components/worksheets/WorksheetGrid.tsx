@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useWorksheets } from '@/contexts/WorksheetContext';
 import { useSession } from 'next-auth/react';
+import { useSearchParams } from 'next/navigation';
 
 // Import the Worksheet interface from the context
 import { Worksheet } from '@/contexts/WorksheetContext';
@@ -25,6 +26,7 @@ interface WorksheetGridProps {
 const WorksheetGrid: React.FC<WorksheetGridProps> = ({ adminWorksheets }) => {
   const { worksheets, downloadWorksheet } = useWorksheets();
   const { data: session } = useSession();
+  const searchParams = useSearchParams();
   const [userPlan, setUserPlan] = useState<string>('Free');
   
   // Get user's subscription plan from session
@@ -60,17 +62,16 @@ const WorksheetGrid: React.FC<WorksheetGridProps> = ({ adminWorksheets }) => {
     }
   };
 
-  // Filter worksheets based on user's plan
+  // Function to filter worksheets based on user's subscription plan and URL parameters
   const getFilteredWorksheets = () => {
-    // If adminWorksheets is provided, use only those (these are already filtered by the context)
-    // Otherwise use worksheets from the context
     const worksheetsToFilter = adminWorksheets || worksheets;
     
     // Debug log to see what we're working with
     console.log('Filtering worksheets:', { 
       adminProvided: !!adminWorksheets,
       totalCount: worksheetsToFilter?.length || 0,
-      adminCount: worksheetsToFilter?.filter(w => w.createdBy === 'admin')?.length || 0
+      adminCount: worksheetsToFilter?.filter(w => w.createdBy === 'admin')?.length || 0,
+      userPlan: userPlan
     });
     
     if (!worksheetsToFilter || worksheetsToFilter.length === 0) return [];
@@ -78,43 +79,141 @@ const WorksheetGrid: React.FC<WorksheetGridProps> = ({ adminWorksheets }) => {
     // First filter for admin worksheets if we're on the public page (adminWorksheets is provided)
     let filteredByAdmin = worksheetsToFilter;
     if (adminWorksheets) {
-      // We're on the public worksheets page, so only show admin worksheets
+      // We're on the public worksheets page, so only show admin worksheets that are public
       filteredByAdmin = worksheetsToFilter.filter(worksheet => 
         worksheet.createdBy === 'admin' && worksheet.isPublic === true
       );
+      
+      // Log the filtered admin worksheets
+      console.log('Admin worksheets after filtering:', filteredByAdmin.length);
+      filteredByAdmin.forEach(w => console.log(`Worksheet: ${w.title}, Plan: ${w.plan}, Level: ${w.subscriptionLevel}`));
     }
     
     // Then filter based on user's subscription plan
-    if (userPlan === 'Free') {
-      return filteredByAdmin.filter(worksheet => 
-        worksheet.subscriptionLevel?.toLowerCase() === 'free' || 
-        worksheet.plan?.toLowerCase() === 'free'
-      );
-    } else if (userPlan === 'Essential') {
-      return filteredByAdmin.filter(worksheet => 
-        worksheet.subscriptionLevel?.toLowerCase() === 'free' || 
-        worksheet.subscriptionLevel?.toLowerCase() === 'essential' ||
-        worksheet.plan?.toLowerCase() === 'free' || 
-        worksheet.plan?.toLowerCase() === 'essential'
-      );
-    } else if (userPlan === 'Premium') {
+    let planFiltered = [];
+    
+    // Log the user's plan for debugging
+    console.log('Filtering worksheets for user plan:', userPlan);
+    
+    if (userPlan.toLowerCase() === 'free') {
+      planFiltered = filteredByAdmin.filter(worksheet => {
+        const worksheetPlan = worksheet.plan?.toLowerCase() || worksheet.subscriptionLevel?.toLowerCase() || '';
+        return worksheetPlan === 'free';
+      });
+    } else if (userPlan.toLowerCase() === 'essential') {
+      planFiltered = filteredByAdmin.filter(worksheet => {
+        const worksheetPlan = worksheet.plan?.toLowerCase() || worksheet.subscriptionLevel?.toLowerCase() || '';
+        return worksheetPlan === 'free' || worksheetPlan === 'essential';
+      });
+    } else if (userPlan.toLowerCase() === 'premium') {
       // Premium users can access all worksheets
-      return filteredByAdmin;
+      planFiltered = filteredByAdmin;
+    } else {
+      // Default to free plan if no subscription
+      planFiltered = filteredByAdmin.filter(worksheet => {
+        const worksheetPlan = worksheet.plan?.toLowerCase() || worksheet.subscriptionLevel?.toLowerCase() || '';
+        return worksheetPlan === 'free';
+      });
     }
     
-    // Default to showing free worksheets only
-    return filteredByAdmin.filter(worksheet => 
-      worksheet.subscriptionLevel?.toLowerCase() === 'free' ||
-      worksheet.plan?.toLowerCase() === 'free'
-    );
+    // Apply URL query parameter filters
+    let result = planFiltered;
+    
+    // Apply search query filter
+    const searchQuery = searchParams.get('query');
+    if (searchQuery && searchQuery.trim() !== '') {
+      const query = searchQuery.toLowerCase().trim();
+      result = result.filter(worksheet => {
+        // Search in title
+        if (worksheet.title.toLowerCase().includes(query)) return true;
+        
+        // Search in subject
+        if (worksheet.subject.toLowerCase().includes(query)) return true;
+        
+        // Search in topic
+        if (worksheet.topic.toLowerCase().includes(query)) return true;
+        
+        // Search in grade (e.g., "grade 3")
+        if ((`grade ${worksheet.grade}`).toLowerCase().includes(query)) return true;
+        
+        // Search in subscription level
+        const level = worksheet.plan || worksheet.subscriptionLevel || '';
+        if (level.toLowerCase().includes(query)) return true;
+        
+        return false;
+      });
+      
+      console.log(`Search results for "${query}": ${result.length} worksheets found`);
+    }
+    
+    // Filter by grade
+    const gradesParam = searchParams.get('grades');
+    if (gradesParam) {
+      const selectedGrades = gradesParam.split(',').map(Number);
+      if (selectedGrades.length > 0) {
+        result = result.filter(worksheet => selectedGrades.includes(worksheet.grade));
+      }
+    }
+    
+    // Filter by subject
+    const subjectsParam = searchParams.get('subjects');
+    if (subjectsParam) {
+      const selectedSubjects = subjectsParam.split(',');
+      if (selectedSubjects.length > 0) {
+        result = result.filter(worksheet => {
+          // Case-insensitive subject comparison
+          const worksheetSubject = worksheet.subject.toLowerCase();
+          return selectedSubjects.some(subject => subject.toLowerCase() === worksheetSubject);
+        });
+      }
+    }
+    
+    // Filter by subscription level
+    const levelsParam = searchParams.get('levels');
+    if (levelsParam) {
+      const selectedLevels = levelsParam.split(',');
+      if (selectedLevels.length > 0) {
+        result = result.filter(worksheet => {
+          const worksheetPlan = worksheet.plan || worksheet.subscriptionLevel || '';
+          return selectedLevels.some(level => level === worksheetPlan);
+        });
+      }
+    }
+    
+    // Sort worksheets
+    const sortByParam = searchParams.get('sortBy');
+    if (sortByParam) {
+      switch (sortByParam) {
+        case 'newest':
+          result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+          break;
+        case 'oldest':
+          result.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+          break;
+        case 'popular':
+          result.sort((a, b) => b.downloadCount - a.downloadCount);
+          break;
+        case 'alphabetical':
+          result.sort((a, b) => a.title.localeCompare(b.title));
+          break;
+      }
+    }
+    
+    // Log the final filtered worksheets
+    console.log('Final filtered worksheets after URL params:', result.length);
+    
+    return result;
   };
 
   // Handle worksheet download
   const handleDownload = (worksheetId: string) => {
-    // Get user ID from session
+    // Get user ID and plan from session
     let userId = 'guest';
+    let userSubscriptionPlan = 'free';
+    
     if (session && session.user && session.user.id) {
       userId = session.user.id;
+      userSubscriptionPlan = session.user.subscriptionPlan || 'free';
     } else if (typeof window !== 'undefined') {
       try {
         const sessionData = localStorage.getItem('practicegenius_session');
@@ -122,11 +221,38 @@ const WorksheetGrid: React.FC<WorksheetGridProps> = ({ adminWorksheets }) => {
           const localSession = JSON.parse(sessionData);
           if (localSession.user && localSession.user.id) {
             userId = localSession.user.id;
+            userSubscriptionPlan = localSession.user.subscriptionPlan || 'free';
           }
         }
       } catch (error) {
         console.error('Error parsing session data:', error);
       }
+    }
+    
+    // Find the worksheet
+    const worksheet = worksheets.find(w => w.id === worksheetId);
+    if (!worksheet) {
+      alert('Worksheet not found!');
+      return;
+    }
+    
+    // Check if user has appropriate subscription for this worksheet
+    const worksheetPlan = (worksheet.plan || worksheet.subscriptionLevel || 'free').toLowerCase();
+    const userPlanLevel = userSubscriptionPlan.toLowerCase();
+    
+    console.log('Download attempt:', {
+      worksheetTitle: worksheet.title,
+      worksheetPlan: worksheetPlan,
+      userPlan: userPlanLevel
+    });
+    
+    // Verify user has access to this worksheet
+    if (
+      (worksheetPlan === 'premium' && userPlanLevel !== 'premium') ||
+      (worksheetPlan === 'essential' && userPlanLevel !== 'essential' && userPlanLevel !== 'premium')
+    ) {
+      alert(`You need a ${worksheetPlan.charAt(0).toUpperCase() + worksheetPlan.slice(1)} subscription to download this worksheet. Please upgrade your plan.`);
+      return;
     }
     
     // Record the download

@@ -1,10 +1,31 @@
-import React from 'react';
+"use client";
+
+import React, { useEffect } from 'react';
 import MainLayout from '@/components/MainLayout';
 import WorksheetFilters from '@/components/worksheets/WorksheetFilters';
 import WorksheetGrid from '@/components/worksheets/WorksheetGrid';
 import WorksheetSearch from '@/components/worksheets/WorksheetSearch';
+import { useWorksheets } from '@/contexts/WorksheetContext';
 
 export default function WorksheetsPage() {
+  // Get worksheets from context
+  const { worksheets, getAdminWorksheets } = useWorksheets();
+  
+  // Log worksheets for debugging
+  useEffect(() => {
+    console.log('Total worksheets in context:', worksheets.length);
+    console.log('Admin worksheets:', getAdminWorksheets().length);
+    console.log('Admin worksheet details:', getAdminWorksheets().map(w => ({
+      title: w.title,
+      plan: w.plan || w.subscriptionLevel,
+      createdBy: w.createdBy,
+      isPublic: w.isPublic
+    })));
+  }, [worksheets, getAdminWorksheets]);
+  
+  // Get admin worksheets to display on public page
+  const adminWorksheets = getAdminWorksheets();
+  
   return (
     <MainLayout>
       <div className="bg-background min-h-screen pt-20">
@@ -32,7 +53,7 @@ export default function WorksheetsPage() {
 
             {/* Worksheets Grid */}
             <div className="lg:col-span-3">
-              <WorksheetGrid />
+              <WorksheetGrid adminWorksheets={adminWorksheets} />
             </div>
           </div>
         </div>

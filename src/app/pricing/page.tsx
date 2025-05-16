@@ -42,7 +42,7 @@ export default function PricingPage() {
         'Standard support response time'
       ],
       buttonText: 'Subscribe Now',
-      buttonLink: '/checkout?plan=essential',
+      buttonLink: '/cart?plan=essential',
       highlighted: true
     },
     {
@@ -59,7 +59,7 @@ export default function PricingPage() {
       ],
       limitations: [],
       buttonText: 'Subscribe Now',
-      buttonLink: '/checkout?plan=premium',
+      buttonLink: '/cart?plan=premium',
       highlighted: false
     }
   ];

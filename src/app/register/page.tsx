@@ -18,6 +18,37 @@ export default function RegisterPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const [returnUrl, setReturnUrl] = useState<string | null>(null);
+  
+  // Function to handle navigation after successful registration
+  const handlePostRegistrationNavigation = () => {
+    // Check if there's a pending checkout or returnUrl
+    const pendingCheckout = localStorage.getItem('pendingCheckout');
+    
+    if (returnUrl) {
+      // Redirect to the specified return URL
+      router.push(returnUrl);
+    } else if (pendingCheckout) {
+      // Redirect to payments page with the plan from pending checkout
+      const checkoutData = JSON.parse(pendingCheckout);
+      router.push(`/payments?plan=${checkoutData.plan}`);
+    } else {
+      // Default redirect to dashboard
+      router.push('/dashboard');
+    }
+  };
+
+  // Check for returnUrl in query parameters and pending checkout
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // Get returnUrl from URL if present
+      const urlParams = new URLSearchParams(window.location.search);
+      const returnUrlParam = urlParams.get('returnUrl');
+      if (returnUrlParam) {
+        setReturnUrl(returnUrlParam);
+      }
+    }
+  }, []);
 
   // Check if user is already logged in
   useEffect(() => {

@@ -232,14 +232,35 @@ export const WorksheetProvider: React.FC<WorksheetProviderProps> = ({ children }
   // Get worksheets uploaded by the admin
   const getAdminWorksheets = (): Worksheet[] => {
     console.log('Total worksheets in context:', worksheets.length);
+    
+    // Log each worksheet for debugging
+    console.log('All worksheets:', worksheets.map(w => ({
+      id: w.id,
+      title: w.title,
+      plan: w.plan,
+      subscriptionLevel: w.subscriptionLevel,
+      createdBy: w.createdBy,
+      isPublic: w.isPublic
+    })));
+    
     console.log('Worksheets with createdBy property:', worksheets.filter(w => w.createdBy !== undefined).length);
     console.log('Admin worksheets:', worksheets.filter(w => w.createdBy === 'admin').length);
     console.log('Public worksheets:', worksheets.filter(w => w.isPublic === true).length);
+    console.log('Admin AND public worksheets:', worksheets.filter(w => w.createdBy === 'admin' && w.isPublic === true).length);
     
     // Return only admin-uploaded and public worksheets
-    return worksheets.filter(worksheet => 
+    const adminWorksheets = worksheets.filter(worksheet => 
       worksheet.createdBy === 'admin' && worksheet.isPublic === true
     );
+    
+    console.log('Final admin worksheets returned:', adminWorksheets.length);
+    console.log('Admin worksheet details:', adminWorksheets.map(w => ({
+      title: w.title,
+      plan: w.plan,
+      subscriptionLevel: w.subscriptionLevel
+    })));
+    
+    return adminWorksheets;
   };
 
   return (
