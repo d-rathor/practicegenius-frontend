@@ -16,10 +16,20 @@
   status = 301
   force = true
 
-# Serve the static HTML file for the home page
+# Serve static HTML files for main pages
 [[redirects]]
   from = "/"
   to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/worksheets"
+  to = "/worksheets.html"
+  status = 200
+
+[[redirects]]
+  from = "/pricing"
+  to = "/pricing.html"
   status = 200
 
 # Handle client-side routing for Next.js for all other routes
