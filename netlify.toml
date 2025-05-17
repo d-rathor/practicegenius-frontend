@@ -1,10 +1,12 @@
 [build]
-  command = "npm run build"
+  command = "npm install && npm run build"
   publish = "out"
 
 [build.environment]
   NODE_VERSION = "18"
+  NPM_FLAGS = "--legacy-peer-deps"
   NEXT_TELEMETRY_DISABLED = "1"
+  NODE_OPTIONS = "--max_old_space_size=4096"
 
 # Required for Next.js rewrites and redirects
 [[redirects]]
@@ -34,9 +36,18 @@
     X-XSS-Protection = "1; mode=block"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.practicegenius.online; frame-src 'self' https://www.youtube.com;"
-    
+
 # Handle 404s
 [[redirects]]
   from = "/*"
   to = "/404.html"
   status = 404
+
+[dev]
+  command = "npm run dev"
+  port = 3000
+  publish = ".next"
+  target = "experimental"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
