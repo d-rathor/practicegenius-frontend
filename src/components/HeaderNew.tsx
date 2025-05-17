@@ -24,8 +24,8 @@ const Header: React.FC<HeaderProps> = ({
   };
   
   return (
-    <header className="bg-white shadow-md py-4 fixed top-0 left-0 right-0 z-50 h-16 md:h-20">
-      <div className="container mx-auto px-4">
+    <header className="bg-white shadow-md py-4 fixed top-0 left-0 right-0 z-50 h-16 md:h-20 flex items-center">
+      <div className="container mx-auto px-4 w-full">
         <div className="flex justify-between items-center">
           {/* Logo */}
           <Link href="/" className="flex items-center">
