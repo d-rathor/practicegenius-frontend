@@ -1,3 +1,6 @@
+// Polyfill for core-js
+import 'core-js';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
