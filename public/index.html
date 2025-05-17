@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PracticeGenius - Educational Worksheets for Grades 1-5</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #ff6b00;
+      --primary-dark-color: #e05f00;
+      --secondary-color: #333333;
+      --background-color: #f8f9fa;
+      --text-color: #333333;
+    }
+    
+    body {
+      color: var(--text-color);
+      background-color: var(--background-color);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
+    
+    .text-primary {
+      color: #ff6b00 !important;
+    }
+    
+    .bg-primary {
+      background-color: #ff6b00 !important;
+    }
+    
+    .hover\:bg-primary-dark:hover {
+      background-color: #e05f00 !important;
+    }
+    
+    .from-secondary {
+      --tw-gradient-from: #333333;
+    }
+    
+    .to-secondary-dark {
+      --tw-gradient-to: #222222;
+    }
+    
+    .header {
+      height: 4rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      background-color: white;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      padding: 1rem 0;
+    }
+    
+    .main-content {
+      padding-top: 4rem;
+    }
+    
+    @media (min-width: 768px) {
+      .header {
+        height: 5rem;
+      }
+      
+      .main-content {
+        padding-top: 5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="container mx-auto px-4">
+      <div class="flex justify-between items-center">
+        <!-- Logo -->
+        <a href="/" class="flex items-center">
+          <img src="/images/Logo3.png" alt="PracticeGenius Logo" class="h-10 w-auto object-contain mr-2">
+          <span class="text-xl font-bold" style="color: #ff6b00;">
+            Practice<span style="color: #333333;">Genius</span>
+          </span>
+        </a>
+        
+        <!-- Desktop Navigation -->
+        <nav class="hidden md:flex items-center space-x-6">
+          <a href="/" class="font-medium text-primary">Home</a>
+          <a href="/worksheets" class="font-medium hover:text-primary transition-colors text-gray-800">Worksheets</a>
+          <a href="/pricing" class="font-medium hover:text-primary transition-colors text-gray-800">Pricing</a>
+          <a href="/about" class="font-medium hover:text-primary transition-colors text-gray-800">About</a>
+          <a href="/contact" class="font-medium hover:text-primary transition-colors text-gray-800">Contact</a>
+        </nav>
+        
+        <!-- Auth Buttons -->
+        <div class="hidden md:flex items-center space-x-4">
+          <a href="/login" class="font-medium text-gray-800 hover:text-primary transition-colors">Login</a>
+          <a href="/register" class="bg-primary text-white font-medium py-2 px-4 rounded-lg hover:bg-primary-dark transition-colors">Register</a>
+        </div>
+        
+        <!-- Mobile Menu Button -->
+        <button class="md:hidden focus:outline-none">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-secondary to-secondary-dark text-white py-16 md:py-24">
+      <div class="container mx-auto px-4">
+        <div class="text-center max-w-3xl mx-auto">
+          <h1 class="text-4xl md:text-5xl font-bold mb-6">
+            <span class="text-primary">Quality Worksheets</span> for Your Child's Success
+          </h1>
+          <p class="text-xl mb-8 text-gray-200">
+            Access premium educational worksheets for grades 1-5 in Math, Science, and English.
+          </p>
+          <div class="flex flex-col sm:flex-row justify-center gap-4 mb-12">
+            <a href="/register" class="bg-primary text-white font-medium py-2 px-6 rounded-lg hover:bg-primary-dark transition-colors flex items-center justify-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd" />
+              </svg>
+              Get Started Now
+            </a>
+            <a href="/worksheets" class="bg-transparent border border-white text-white font-medium py-2 px-6 rounded-lg hover:bg-white hover:text-secondary transition-colors">
+              Browse Worksheets
+            </a>
+          </div>
+          <div class="grid grid-cols-3 gap-4">
+            <div class="text-center p-4 bg-black bg-opacity-20 rounded-lg">
+              <h3 class="text-2xl md:text-3xl font-bold text-primary">500+</h3>
+              <p class="text-gray-300">Worksheets</p>
+            </div>
+            <div class="text-center p-4 bg-black bg-opacity-20 rounded-lg">
+              <h3 class="text-2xl md:text-3xl font-bold text-primary">5</h3>
+              <p class="text-gray-300">Grade Levels</p>
+            </div>
+            <div class="text-center p-4 bg-black bg-opacity-20 rounded-lg">
+              <h3 class="text-2xl md:text-3xl font-bold text-primary">3</h3>
+              <p class="text-gray-300">Subjects</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-16 bg-white">
+      <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-12">Why Choose PracticeGenius?</h2>
+        <div class="grid md:grid-cols-3 gap-8">
+          <div class="bg-gray-50 p-6 rounded-lg shadow-md">
+            <h3 class="text-xl font-semibold text-primary mb-4">Expertly Crafted</h3>
+            <p class="text-gray-700">Our worksheets are designed by experienced educators to align with curriculum standards.</p>
+          </div>
+          <div class="bg-gray-50 p-6 rounded-lg shadow-md">
+            <h3 class="text-xl font-semibold text-primary mb-4">Easy to Use</h3>
+            <p class="text-gray-700">Download, print, and start learning immediately with our user-friendly worksheets.</p>
+          </div>
+          <div class="bg-gray-50 p-6 rounded-lg shadow-md">
+            <h3 class="text-xl font-semibold text-primary mb-4">Comprehensive Coverage</h3>
+            <p class="text-gray-700">From basic concepts to advanced topics, we cover the full spectrum of learning needs.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="py-16 bg-gray-50">
+      <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-4">Simple, Transparent Pricing</h2>
+        <p class="text-center text-gray-600 mb-12 max-w-2xl mx-auto">Choose the plan that works best for your needs</p>
+        
+        <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+            <h3 class="text-xl font-bold mb-2">Free</h3>
+            <p class="text-3xl font-bold mb-4">₹0 <span class="text-sm font-normal text-gray-600">forever</span></p>
+            <p class="text-gray-600 mb-6">Basic access to limited worksheets</p>
+            <ul class="mb-6 space-y-2">
+              <li class="flex items-center"><svg class="h-5 w-5 text-primary mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> Access to 2 worksheets per grade</li>
+              <li class="flex items-center"><svg class="h-5 w-5 text-primary mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> Preview all worksheets</li>
+              <li class="flex items-center"><svg class="h-5 w-5 text-primary mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> Basic support</li>
+            </ul>
+            <a href="/register" class="block text-center py-2 px-4 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 transition-colors w-full">Get Started</a>
+          </div>
+          
+          <div class="bg-white p-6 rounded-lg shadow-lg border-2 border-primary relative transform scale-105">
+            <div class="absolute top-0 right-0 bg-primary text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">POPULAR</div>
+            <h3 class="text-xl font-bold mb-2">Essential</h3>
+            <p class="text-3xl font-bold mb-4">₹199 <span class="text-sm font-normal text-gray-600">per month</span></p>
+            <p class="text-gray-600 mb-6">Perfect for regular learning needs</p>
+            <ul class="mb-6 space-y-2">
+              <li class="flex items-center"><svg class="h-5 w-5 text-primary mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> Access to all Essential worksheets</li>
+              <li class="flex items-center"><svg class="h-5 w-5 text-primary mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> Unlimited downloads</li>
+              <li class="flex items-center"><svg class="h-5 w-5 text-primary mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> Monthly new worksheets</li>
+              <li class="flex items-center"><svg class="h-5 w-5 text-primary mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> Email support</li>
+            </ul>
+            <a href="/cart?plan=essential" class="block text-center py-2 px-4 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors w-full">Subscribe Now</a>
+          </div>
+          
+          <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+            <h3 class="text-xl font-bold mb-2">Premium</h3>
+            <p class="text-3xl font-bold mb-4">₹399 <span class="text-sm font-normal text-gray-600">per month</span></p>
+            <p class="text-gray-600 mb-6">Complete access to all resources</p>
+            <ul class="mb-6 space-y-2">
+              <li class="flex items-center"><svg class="h-5 w-5 text-primary mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> Access to ALL worksheets</li>
+              <li class="flex items-center"><svg class="h-5 w-5 text-primary mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> Unlimited downloads</li>
+              <li class="flex items-center"><svg class="h-5 w-5 text-primary mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> Priority access to new worksheets</li>
+              <li class="flex items-center"><svg class="h-5 w-5 text-primary mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> Premium support</li>
+            </ul>
+            <a href="/cart?plan=premium" class="block text-center py-2 px-4 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors w-full">Subscribe Now</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-16 bg-primary">
+      <div class="container mx-auto px-4 text-center">
+        <h2 class="text-3xl font-bold text-white mb-6">Ready to enhance your child's education?</h2>
+        <p class="text-white text-xl mb-8 max-w-2xl mx-auto">Join thousands of parents who trust PracticeGenius for quality educational resources.</p>
+        <a href="/register" class="inline-block py-3 px-8 bg-white text-primary font-bold rounded-lg hover:bg-gray-100 transition-colors">Get Started Today</a>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-white py-12">
+    <div class="container mx-auto px-4">
+      <div class="grid md:grid-cols-4 gap-8">
+        <div>
+          <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+          <ul class="space-y-2">
+            <li><a href="/" class="hover:text-primary transition-colors">Home</a></li>
+            <li><a href="/worksheets" class="hover:text-primary transition-colors">Worksheets</a></li>
+            <li><a href="/pricing" class="hover:text-primary transition-colors">Pricing</a></li>
+            <li><a href="/about" class="hover:text-primary transition-colors">About Us</a></li>
+            <li><a href="/contact" class="hover:text-primary transition-colors">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold mb-4">Subjects</h3>
+          <ul class="space-y-2">
+            <li><a href="/worksheets?subject=math" class="hover:text-primary transition-colors">Mathematics</a></li>
+            <li><a href="/worksheets?subject=science" class="hover:text-primary transition-colors">Science</a></li>
+            <li><a href="/worksheets?subject=english" class="hover:text-primary transition-colors">English</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold mb-4">Grades</h3>
+          <ul class="space-y-2">
+            <li><a href="/worksheets?grade=1" class="hover:text-primary transition-colors">Grade 1</a></li>
+            <li><a href="/worksheets?grade=2" class="hover:text-primary transition-colors">Grade 2</a></li>
+            <li><a href="/worksheets?grade=3" class="hover:text-primary transition-colors">Grade 3</a></li>
+            <li><a href="/worksheets?grade=4" class="hover:text-primary transition-colors">Grade 4</a></li>
+            <li><a href="/worksheets?grade=5" class="hover:text-primary transition-colors">Grade 5</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold mb-4">Contact Us</h3>
+          <p class="mb-2">Email: info@practicegenius.online</p>
+          <p class="mb-4">Phone: +91 98765 43210</p>
+          <h3 class="text-lg font-semibold mb-4">Subscribe to Newsletter</h3>
+          <form class="flex">
+            <input type="email" placeholder="Your email" class="px-4 py-2 rounded-l-lg w-full text-gray-800">
+            <button type="submit" class="bg-primary hover:bg-primary-dark px-4 py-2 rounded-r-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          </form>
+        </div>
+      </div>
+      <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+        <p>&copy; 2025 PracticeGenius. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
