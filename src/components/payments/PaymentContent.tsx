@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Script from 'next/script';
-import { useSession } from 'next-auth/react';
 
 declare global {
   interface Window {
@@ -18,18 +17,40 @@ interface PaymentDetails {
   description: string;
 }
 
+// Function to check if user is authenticated
+const checkUserAuthentication = () => {
+  if (typeof window !== 'undefined') {
+    try {
+      const sessionData = localStorage.getItem('practicegenius_session');
+      if (sessionData) {
+        const session = JSON.parse(sessionData);
+        // Check if session is valid and not expired
+        if (session && session.user && new Date(session.expires) > new Date()) {
+          return { isAuthenticated: true, user: session.user };
+        }
+      }
+    } catch (error) {
+      console.error('Error checking authentication status:', error);
+    }
+  }
+  return { isAuthenticated: false, user: null };
+};
+
 const PaymentContent: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { data: session } = useSession();
   const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [error, setError] = useState('');
+  const [userAuth, setUserAuth] = useState({ isAuthenticated: false, user: null });
 
   useEffect(() => {
     // Check if user is authenticated
-    if (!session) {
+    const auth = checkUserAuthentication();
+    setUserAuth(auth);
+    
+    if (!auth.isAuthenticated) {
       router.push('/login?returnUrl=/payments');
       return;
     }
@@ -75,38 +96,75 @@ const PaymentContent: React.FC = () => {
         description: 'Free Plan'
       });
     }
-  }, [searchParams, router, session]);
+  }, [searchParams, router]);
 
   // Handle payment simulation
   const handlePayNow = () => {
     if (!paymentDetails) return;
     
+    console.log('Starting payment process for:', paymentDetails.planName);
     setIsProcessing(true);
     
     // Simulate payment processing
     setTimeout(() => {
       // Update user's subscription in localStorage
-      if (typeof window !== 'undefined' && session?.user) {
+      if (typeof window !== 'undefined') {
         try {
+          // Extract clean plan name
+          const cleanPlanName = paymentDetails.planName.toLowerCase().replace(' plan', '');
+          console.log('Clean plan name:', cleanPlanName);
+          
+          // First, directly set the user_subscription for immediate access
+          const subscriptionInfo = {
+            plan: cleanPlanName,
+            status: 'active',
+            startDate: new Date().toISOString()
+          };
+          localStorage.setItem('user_subscription', JSON.stringify(subscriptionInfo));
+          console.log('Set user_subscription directly:', subscriptionInfo);
+          
+          // Then update the session if it exists
           const sessionData = localStorage.getItem('practicegenius_session');
           if (sessionData) {
             const sessionObj = JSON.parse(sessionData);
             
             // Update user's subscription plan
             if (sessionObj.user) {
-              sessionObj.user.subscriptionPlan = paymentDetails.planName;
+              sessionObj.user.subscriptionPlan = cleanPlanName;
               sessionObj.user.subscriptionDate = new Date().toISOString();
               sessionObj.user.subscriptionStatus = 'active';
               
               // Save updated session
               localStorage.setItem('practicegenius_session', JSON.stringify(sessionObj));
-              
-              // Clear pending checkout
-              localStorage.removeItem('pendingCheckout');
+              console.log('Updated existing session with plan:', cleanPlanName);
             }
+          } else {
+            // Create a mock session if none exists
+            const mockUser = {
+              id: 'temp-' + Date.now(),
+              name: 'Guest User',
+              email: 'guest@example.com',
+              subscriptionPlan: cleanPlanName,
+              subscriptionDate: new Date().toISOString(),
+              subscriptionStatus: 'active'
+            };
+            
+            const mockSession = {
+              user: mockUser,
+              expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days
+            };
+            
+            localStorage.setItem('practicegenius_session', JSON.stringify(mockSession));
+            console.log('Created new session with plan:', cleanPlanName);
           }
+          
+          // Clear pending checkout
+          localStorage.removeItem('pendingCheckout');
+          
+          // Force a reload to ensure all components pick up the new subscription
+          window.localStorage.setItem('force_refresh', Date.now().toString());
         } catch (error) {
-          console.error('Error updating session:', error);
+          console.error('Error updating subscription:', error);
         }
       }
       

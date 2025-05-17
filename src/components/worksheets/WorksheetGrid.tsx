@@ -27,23 +27,62 @@ const WorksheetGrid: React.FC<WorksheetGridProps> = ({ adminWorksheets }) => {
   const searchParams = useSearchParams();
   const [userPlan, setUserPlan] = useState<string>('Free');
   
-  // Get user's subscription plan from session
-  useEffect(() => {
+  // Function to check and update subscription plan
+  const checkSubscriptionPlan = () => {
     if (typeof window !== 'undefined') {
       try {
+        // First try to get from user_subscription (more reliable)
+        const subscriptionData = localStorage.getItem('user_subscription');
+        if (subscriptionData) {
+          const subscription = JSON.parse(subscriptionData);
+          if (subscription.plan) {
+            // Capitalize first letter for display
+            const planName = subscription.plan.charAt(0).toUpperCase() + subscription.plan.slice(1);
+            console.log('Using subscription plan from user_subscription:', planName);
+            setUserPlan(planName);
+            return;
+          }
+        }
+        
+        // Fallback to session data
         const sessionData = localStorage.getItem('practicegenius_session');
         if (sessionData) {
           const session = JSON.parse(sessionData);
           if (session.user && session.user.subscriptionPlan) {
-            // Extract just the plan name (Free, Essential, Premium)
-            const planName = session.user.subscriptionPlan.split(' ')[0];
+            // Ensure plan name is properly formatted
+            const planName = session.user.subscriptionPlan.charAt(0).toUpperCase() + 
+                           session.user.subscriptionPlan.slice(1).toLowerCase().replace('plan', '').trim();
+            console.log('Using subscription plan from session:', planName);
             setUserPlan(planName);
           }
         }
       } catch (error) {
-        console.error('Error parsing session data:', error);
+        console.error('Error parsing subscription data:', error);
       }
     }
+  };
+  
+  // Check subscription on mount
+  useEffect(() => {
+    checkSubscriptionPlan();
+    
+    // Set up storage event listener to detect changes to localStorage
+    const handleStorageChange = (event) => {
+      if (event.key === 'user_subscription' || event.key === 'practicegenius_session' || event.key === 'force_refresh') {
+        console.log('Storage changed, updating subscription plan');
+        checkSubscriptionPlan();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Check every second for changes (backup method)
+    const intervalId = setInterval(checkSubscriptionPlan, 1000);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(intervalId);
+    };
   }, []);
 
   // Function to get subscription level badge color
