@@ -1,7 +1,7 @@
 "use client";
 
 import React, { ReactNode, useState, useEffect } from 'react';
-import Header from './Header';
+import Header from './HeaderNew';
 import Footer from './Footer';
 
 interface MainLayoutProps {

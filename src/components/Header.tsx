@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 
 interface HeaderProps {
@@ -17,46 +16,16 @@ const Header: React.FC<HeaderProps> = ({
   onLogout 
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
-
-  // Handle scroll event to change header style
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 10) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // Toggle mobile menu
+  
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
-
+  
   return (
-    <header 
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-white shadow-md py-2' : 'bg-white shadow-md py-2'
-      }`}
-    >
-      <div className="container mx-auto px-4 flex items-center justify-between">
-        {/* Logo */}
-        <Link href="/" className="flex items-center">
-          <img 
-            src="/images/Logo3.png" 
-            alt="PracticeGenius Logo" 
-            className="mr-2 h-10 w-auto object-contain"
-          />
-          <span className="text-xl font-bold text-primary">
-            Practice<span className="text-secondary">Genius</span>
-          </span>
-        </Link>
+    <header className="bg-white shadow-md py-3 fixed top-0 left-0 right-0 z-50">
+      <div className="container mx-auto px-4">
+        <div className="flex justify-between items-center">
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-6">
