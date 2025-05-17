@@ -1,13 +1,16 @@
 [build]
   command = "npm run build"
-  publish = ".next"
+  publish = "out"
 
 [build.environment]
   NODE_VERSION = "18"
   NEXT_TELEMETRY_DISABLED = "1"
 
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
+# Required for Next.js rewrites and redirects
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
 
 # Force HTTPS
 [[redirects]]
@@ -16,8 +19,24 @@
   status = 301
   force = true
 
-# Handle client-side routing for Next.js
+# Cache static assets for 1 year
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Security headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.practicegenius.online; frame-src 'self' https://www.youtube.com;"
+    
+# Handle 404s
 [[redirects]]
   from = "/*"
-  to = "/.netlify/functions/nextjs-server"
-  status = 200
+  to = "/404.html"
+  status = 404
