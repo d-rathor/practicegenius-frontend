@@ -19,6 +19,7 @@ const nextConfig = {
   productionBrowserSourceMaps: false,
   // Disable type checking during build for faster builds
   typescript: {
+    // Skip type checking during build
     ignoreBuildErrors: true,
   },
   // Disable ESLint during build for faster builds
