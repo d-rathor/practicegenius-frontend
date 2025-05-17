@@ -1,5 +1,5 @@
 [build]
-  command = "npm run build"
+  command = "npm install && npm run build"
   publish = "out"
 
 [build.environment]
@@ -8,6 +8,8 @@
   NEXT_TELEMETRY_DISABLED = "1"
   NODE_OPTIONS = "--max_old_space_size=4096"
   CI = "false"  # Disable CI to prevent it from failing the build on warnings
+  ENABLE_NEXTJS_LEGACY_MODE = "true"  # Enable legacy mode for Next.js
+  NETLIFY_NEXT_PLUGIN_SKIP = "true"  # Skip the Netlify Next.js plugin
 
 # Required for Next.js rewrites and redirects
 [[redirects]]

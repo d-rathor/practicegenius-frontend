@@ -1,28 +1,22 @@
-// Polyfill for core-js
-import 'core-js';
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Disable image optimization for static export
   images: {
-    domains: ['localhost', 'practicegenius.online'],
     unoptimized: true,
+    domains: ['localhost', 'practicegenius.online'],
   },
+  // Environment variables
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api',
     NEXT_PUBLIC_RAZORPAY_KEY_ID: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_placeholder',
   },
   // Enable static exports for Netlify
   output: 'export',
-  // Configure base path if your site is served from a subdirectory
-  // basePath: '/your-base-path',
-  // Configure asset prefix for static assets
-  assetPrefix: process.env.NODE_ENV === 'production' ? 'https://practicegenius.online' : '',
   // Disable source maps in production to reduce bundle size
   productionBrowserSourceMaps: false,
   // Disable type checking during build for faster builds
   typescript: {
-    // Skip type checking during build
     ignoreBuildErrors: true,
   },
   // Disable ESLint during build for faster builds
@@ -43,6 +37,8 @@ const nextConfig = {
       },
     ];
   },
+  // Enable trailing slashes for better compatibility with static hosting
+  trailingSlash: true,
 };
 
 module.exports = nextConfig;
