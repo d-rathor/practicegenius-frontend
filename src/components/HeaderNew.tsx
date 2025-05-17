@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import Image from 'next/image';
 
 interface HeaderProps {
   isLoggedIn: boolean;
@@ -18,60 +19,66 @@ const Header: React.FC<HeaderProps> = ({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
   
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+  
   return (
-    <header className="bg-white shadow-md py-3 fixed top-0 left-0 right-0 z-50">
+    <header className="bg-white shadow-md py-4 fixed top-0 left-0 right-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center">
           {/* Logo */}
           <Link href="/" className="flex items-center">
-            <img 
-              src="/images/Logo3.png" 
-              alt="PracticeGenius Logo" 
-              className="mr-2 h-10 w-auto object-contain"
-            />
-            <span className="text-xl font-bold text-primary">
-              Practice<span className="text-secondary">Genius</span>
+            <div className="relative h-10 w-10 mr-2">
+              <img 
+                src="/images/Logo3.png" 
+                alt="PracticeGenius Logo"
+                className="h-10 w-auto object-contain"
+              />
+            </div>
+            <span className="text-xl font-bold text-[#ff6b00]">
+              Practice<span className="text-[#333333]">Genius</span>
             </span>
           </Link>
           
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-4">
+          <nav className="hidden md:flex items-center space-x-6">
             <Link 
               href="/" 
-              className={`font-medium hover:text-primary transition-colors ${
-                pathname === '/' ? 'text-primary' : 'text-secondary'
+              className={`font-medium hover:text-[#ff6b00] transition-colors ${
+                pathname === '/' ? 'text-[#ff6b00]' : 'text-[#333333]'
               }`}
             >
               Home
             </Link>
             <Link 
               href="/worksheets" 
-              className={`font-medium hover:text-primary transition-colors ${
-                pathname?.startsWith('/worksheets') ? 'text-primary' : 'text-secondary'
+              className={`font-medium hover:text-[#ff6b00] transition-colors ${
+                pathname?.startsWith('/worksheets') ? 'text-[#ff6b00]' : 'text-[#333333]'
               }`}
             >
               Worksheets
             </Link>
             <Link 
               href="/pricing" 
-              className={`font-medium hover:text-primary transition-colors ${
-                pathname === '/pricing' ? 'text-primary' : 'text-secondary'
+              className={`font-medium hover:text-[#ff6b00] transition-colors ${
+                pathname === '/pricing' ? 'text-[#ff6b00]' : 'text-[#333333]'
               }`}
             >
               Pricing
             </Link>
             <Link 
               href="/about" 
-              className={`font-medium hover:text-primary transition-colors ${
-                pathname === '/about' ? 'text-primary' : 'text-secondary'
+              className={`font-medium hover:text-[#ff6b00] transition-colors ${
+                pathname === '/about' ? 'text-[#ff6b00]' : 'text-[#333333]'
               }`}
             >
               About
             </Link>
             <Link 
               href="/contact" 
-              className={`font-medium hover:text-primary transition-colors ${
-                pathname === '/contact' ? 'text-primary' : 'text-secondary'
+              className={`font-medium hover:text-[#ff6b00] transition-colors ${
+                pathname === '/contact' ? 'text-[#ff6b00]' : 'text-[#333333]'
               }`}
             >
               Contact
@@ -82,13 +89,13 @@ const Header: React.FC<HeaderProps> = ({
           <div className="hidden md:flex items-center space-x-4">
             {isLoggedIn ? (
               <div className="relative group">
-                <button className="bg-primary text-white font-medium py-2 px-4 rounded-lg hover:bg-primary-dark transition-colors flex items-center space-x-2">
+                <button className="bg-[#ff6b00] text-white font-medium py-2 px-4 rounded-lg hover:bg-[#e05f00] transition-colors flex items-center space-x-2">
                   <span>My Account</span>
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                   </svg>
                 </button>
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 invisible group-hover:visible transition-all opacity-0 group-hover:opacity-100">
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 invisible group-hover:visible transition-all opacity-0 group-hover:opacity-100 z-50">
                   <Link href="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                     Dashboard
                   </Link>
@@ -102,7 +109,7 @@ const Header: React.FC<HeaderProps> = ({
                   )}
                   <button 
                     onClick={onLogout} 
-                    className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                    className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
                   >
                     Logout
                   </button>
@@ -112,13 +119,13 @@ const Header: React.FC<HeaderProps> = ({
               <>
                 <Link 
                   href="/login" 
-                  className="bg-transparent border border-gray-300 text-gray-700 font-medium py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="border border-gray-300 text-gray-700 font-medium py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   Login
                 </Link>
                 <Link 
                   href="/register" 
-                  className="bg-primary text-white font-medium py-2 px-4 rounded-lg hover:bg-primary-dark transition-colors"
+                  className="bg-[#ff6b00] text-white font-medium py-2 px-4 rounded-lg hover:bg-[#e05f00] transition-colors"
                 >
                   Register
                 </Link>
@@ -128,8 +135,8 @@ const Header: React.FC<HeaderProps> = ({
 
           {/* Mobile menu button */}
           <button 
-            className="md:hidden flex items-center p-2 rounded-md text-gray-600 hover:text-primary hover:bg-gray-100"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="md:hidden flex items-center p-2 rounded-md text-gray-600 hover:text-[#ff6b00] hover:bg-gray-100"
+            onClick={toggleMenu}
             aria-expanded={isMenuOpen}
             aria-label="Toggle menu"
           >
@@ -146,60 +153,60 @@ const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Mobile menu */}
-        {isMenuOpen && (
-          <div className="md:hidden pt-4 pb-2">
-            <nav className="flex flex-col space-y-2">
-              <Link 
-                href="/" 
-                className={`px-4 py-2 rounded-md ${pathname === '/' ? 'bg-gray-100 text-primary' : 'text-secondary hover:bg-gray-100'}`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Home
-              </Link>
-              <Link 
-                href="/worksheets" 
-                className={`px-4 py-2 rounded-md ${pathname?.startsWith('/worksheets') ? 'bg-gray-100 text-primary' : 'text-secondary hover:bg-gray-100'}`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Worksheets
-              </Link>
-              <Link 
-                href="/pricing" 
-                className={`px-4 py-2 rounded-md ${pathname === '/pricing' ? 'bg-gray-100 text-primary' : 'text-secondary hover:bg-gray-100'}`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Pricing
-              </Link>
-              <Link 
-                href="/about" 
-                className={`px-4 py-2 rounded-md ${pathname === '/about' ? 'bg-gray-100 text-primary' : 'text-secondary hover:bg-gray-100'}`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                About
-              </Link>
-              <Link 
-                href="/contact" 
-                className={`px-4 py-2 rounded-md ${pathname === '/contact' ? 'bg-gray-100 text-primary' : 'text-secondary hover:bg-gray-100'}`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Contact
-              </Link>
-            </nav>
-            
-            {/* Mobile Auth Links */}
-            <div className="mt-4 pt-4 border-t border-gray-200">
+        <div 
+          className={`md:hidden transition-all duration-300 overflow-hidden ${isMenuOpen ? 'max-h-screen py-4' : 'max-h-0'}`}
+        >
+          <div className="flex flex-col space-y-3">
+            <Link 
+              href="/" 
+              className={`px-4 py-2 rounded-md ${pathname === '/' ? 'bg-gray-100 text-[#ff6b00]' : 'text-[#333333] hover:bg-gray-100'}`}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Home
+            </Link>
+            <Link 
+              href="/worksheets" 
+              className={`px-4 py-2 rounded-md ${pathname?.startsWith('/worksheets') ? 'bg-gray-100 text-[#ff6b00]' : 'text-[#333333] hover:bg-gray-100'}`}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Worksheets
+            </Link>
+            <Link 
+              href="/pricing" 
+              className={`px-4 py-2 rounded-md ${pathname === '/pricing' ? 'bg-gray-100 text-[#ff6b00]' : 'text-[#333333] hover:bg-gray-100'}`}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Pricing
+            </Link>
+            <Link 
+              href="/about" 
+              className={`px-4 py-2 rounded-md ${pathname === '/about' ? 'bg-gray-100 text-[#ff6b00]' : 'text-[#333333] hover:bg-gray-100'}`}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              About
+            </Link>
+            <Link 
+              href="/contact" 
+              className={`px-4 py-2 rounded-md ${pathname === '/contact' ? 'bg-gray-100 text-[#ff6b00]' : 'text-[#333333] hover:bg-gray-100'}`}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Contact
+            </Link>
+
+            {/* Auth Links */}
+            <div className="pt-4 border-t border-gray-200">
               {isLoggedIn ? (
-                <div className="flex flex-col space-y-2">
+                <>
                   <Link 
                     href="/dashboard" 
-                    className="px-4 py-2 text-secondary hover:bg-gray-100 rounded-md"
+                    className="block px-4 py-2 text-[#333333] hover:bg-gray-100 rounded-md"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Dashboard
                   </Link>
                   <Link 
                     href="/profile" 
-                    className="px-4 py-2 text-secondary hover:bg-gray-100 rounded-md"
+                    className="block px-4 py-2 text-[#333333] hover:bg-gray-100 rounded-md"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Profile
@@ -207,7 +214,7 @@ const Header: React.FC<HeaderProps> = ({
                   {userRole === 'admin' && (
                     <Link 
                       href="/admin" 
-                      className="px-4 py-2 text-secondary hover:bg-gray-100 rounded-md"
+                      className="block px-4 py-2 text-[#333333] hover:bg-gray-100 rounded-md"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Admin Panel
@@ -218,23 +225,23 @@ const Header: React.FC<HeaderProps> = ({
                       if (onLogout) onLogout();
                       setIsMenuOpen(false);
                     }} 
-                    className="px-4 py-2 text-left text-red-600 hover:bg-gray-100 rounded-md"
+                    className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100 rounded-md"
                   >
                     Logout
                   </button>
-                </div>
+                </>
               ) : (
                 <div className="flex flex-col space-y-2">
                   <Link 
                     href="/login" 
-                    className="px-4 py-2 text-secondary hover:bg-gray-100 rounded-md"
+                    className="block px-4 py-2 text-center border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Login
                   </Link>
                   <Link 
                     href="/register" 
-                    className="px-4 py-2 bg-primary text-white rounded-md"
+                    className="block px-4 py-2 text-center bg-[#ff6b00] text-white rounded-md hover:bg-[#e05f00]"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Register
@@ -243,7 +250,7 @@ const Header: React.FC<HeaderProps> = ({
               )}
             </div>
           </div>
-        )}
+        </div>
       </div>
     </header>
   );
