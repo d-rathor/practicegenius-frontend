@@ -16,7 +16,13 @@
   status = 301
   force = true
 
-# Handle client-side routing for Next.js
+# Serve the static HTML file for the home page
+[[redirects]]
+  from = "/"
+  to = "/index.html"
+  status = 200
+
+# Handle client-side routing for Next.js for all other routes
 [[redirects]]
   from = "/*"
   to = "/.netlify/functions/nextjs-server"
