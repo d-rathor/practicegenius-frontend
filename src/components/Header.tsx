@@ -42,10 +42,10 @@ const Header: React.FC<HeaderProps> = ({
   return (
     <header 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-white shadow-md py-2' : 'bg-transparent py-4'
+        isScrolled ? 'bg-white shadow-md py-2' : 'bg-white shadow-md py-2'
       }`}
     >
-      <div className="container-custom flex items-center justify-between">
+      <div className="container mx-auto px-4 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center">
           <img 
@@ -59,7 +59,7 @@ const Header: React.FC<HeaderProps> = ({
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-8">
+        <nav className="hidden md:flex items-center space-x-6">
           <Link 
             href="/" 
             className={`font-medium hover:text-primary transition-colors ${
@@ -144,10 +144,11 @@ const Header: React.FC<HeaderProps> = ({
           )}
         </div>
 
-        {/* Mobile Menu Button */}
+        {/* Mobile menu button */}
         <button 
-          className="md:hidden text-secondary" 
+          className="md:hidden flex items-center p-2 rounded-md text-gray-600 hover:text-primary hover:bg-gray-100"
           onClick={toggleMenu}
+          aria-expanded={isMenuOpen}
           aria-label="Toggle menu"
         >
           {isMenuOpen ? (
@@ -162,50 +163,42 @@ const Header: React.FC<HeaderProps> = ({
         </button>
       </div>
 
-      {/* Mobile Menu */}
-      <div className={`md:hidden bg-white ${isMenuOpen ? 'block' : 'hidden'}`}>
-        <div className="container-custom py-4 space-y-4">
+      {/* Mobile menu */}
+      <div 
+        className={`md:hidden absolute top-full left-0 right-0 bg-white shadow-md transition-all duration-300 overflow-hidden ${isMenuOpen ? 'max-h-screen py-4' : 'max-h-0'}`}
+      >
+        <div className="container mx-auto px-4 flex flex-col space-y-3">
           <Link 
             href="/" 
-            className={`block font-medium py-2 ${
-              pathname === '/' ? 'text-primary' : 'text-secondary'
-            }`}
+            className={`px-4 py-2 rounded-md ${pathname === '/' ? 'bg-gray-100 text-primary' : 'text-secondary hover:bg-gray-100'}`}
             onClick={() => setIsMenuOpen(false)}
           >
             Home
           </Link>
           <Link 
             href="/worksheets" 
-            className={`block font-medium py-2 ${
-              pathname?.startsWith('/worksheets') ? 'text-primary' : 'text-secondary'
-            }`}
+            className={`px-4 py-2 rounded-md ${pathname?.startsWith('/worksheets') ? 'bg-gray-100 text-primary' : 'text-secondary hover:bg-gray-100'}`}
             onClick={() => setIsMenuOpen(false)}
           >
             Worksheets
           </Link>
           <Link 
             href="/pricing" 
-            className={`block font-medium py-2 ${
-              pathname === '/pricing' ? 'text-primary' : 'text-secondary'
-            }`}
+            className={`px-4 py-2 rounded-md ${pathname === '/pricing' ? 'bg-gray-100 text-primary' : 'text-secondary hover:bg-gray-100'}`}
             onClick={() => setIsMenuOpen(false)}
           >
             Pricing
           </Link>
           <Link 
             href="/about" 
-            className={`block font-medium py-2 ${
-              pathname === '/about' ? 'text-primary' : 'text-secondary'
-            }`}
+            className={`px-4 py-2 rounded-md ${pathname === '/about' ? 'bg-gray-100 text-primary' : 'text-secondary hover:bg-gray-100'}`}
             onClick={() => setIsMenuOpen(false)}
           >
             About
           </Link>
           <Link 
             href="/contact" 
-            className={`block font-medium py-2 ${
-              pathname === '/contact' ? 'text-primary' : 'text-secondary'
-            }`}
+            className={`px-4 py-2 rounded-md ${pathname === '/contact' ? 'bg-gray-100 text-primary' : 'text-secondary hover:bg-gray-100'}`}
             onClick={() => setIsMenuOpen(false)}
           >
             Contact

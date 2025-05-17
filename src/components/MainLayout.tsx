@@ -56,7 +56,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         userRole={userRole} 
         onLogout={handleLogout} 
       />
-      <main className="flex-grow pt-20">
+      <main className="flex-grow pt-16 md:pt-20">
         {children}
       </main>
       <Footer />

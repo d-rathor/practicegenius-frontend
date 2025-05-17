@@ -15,67 +15,56 @@ const HeroSection: React.FC = () => {
         }}></div>
       </div>
       
-      <div className="container-custom relative z-10 py-20 md:py-28 lg:py-32">
+      <div className="container mx-auto px-4 relative z-10 py-16 md:py-24 lg:py-28">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Hero content */}
           <div className="text-center lg:text-left">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
               <span className="text-primary">Quality Worksheets</span> for Your Child's Success
             </h1>
-            <p className="text-xl md:text-2xl mb-8 text-gray-200">
+            <p className="text-lg md:text-xl mb-8 text-gray-200">
               Access premium educational worksheets for grades 1-5 in Math, Science, and English.
             </p>
             <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-4">
-              <Link href="/register" className="btn btn-primary text-lg flex items-center justify-center gap-2">
-                <Image 
-                  src="/images/Get Started Now.png" 
-                  alt="Get Started" 
-                  width={24} 
-                  height={24}
-                  className="w-6 h-6"
-                />
+              <Link href="/register" className="bg-primary text-white font-medium py-2 px-6 rounded-lg hover:bg-primary-dark transition-colors text-lg flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clipRule="evenodd" />
+                </svg>
                 Get Started Now
               </Link>
-              <Link href="/worksheets" className="btn btn-outline border-white text-white hover:bg-white hover:text-secondary text-lg">
+              <Link href="/worksheets" className="bg-transparent border border-white text-white font-medium py-2 px-6 rounded-lg hover:bg-white hover:text-secondary transition-colors text-lg">
                 Browse Worksheets
               </Link>
             </div>
             
             {/* Stats */}
-            <div className="mt-12 grid grid-cols-2 md:grid-cols-3 gap-6">
-              <div className="text-center p-4 bg-black bg-opacity-20 rounded-lg">
-                <h3 className="text-3xl md:text-4xl font-bold text-primary">500+</h3>
-                <p className="text-gray-300">Worksheets</p>
+            <div className="mt-10 grid grid-cols-3 gap-4">
+              <div className="text-center p-3 bg-black bg-opacity-20 rounded-lg">
+                <h3 className="text-2xl md:text-3xl font-bold text-primary">500+</h3>
+                <p className="text-gray-300 text-sm">Worksheets</p>
               </div>
-              <div className="text-center p-4 bg-black bg-opacity-20 rounded-lg">
-                <h3 className="text-3xl md:text-4xl font-bold text-primary">5</h3>
-                <p className="text-gray-300">Grade Levels</p>
+              <div className="text-center p-3 bg-black bg-opacity-20 rounded-lg">
+                <h3 className="text-2xl md:text-3xl font-bold text-primary">5</h3>
+                <p className="text-gray-300 text-sm">Grade Levels</p>
               </div>
-              <div className="text-center p-4 bg-black bg-opacity-20 rounded-lg md:col-span-1 col-span-2">
-                <h3 className="text-3xl md:text-4xl font-bold text-primary">3</h3>
-                <p className="text-gray-300">Subjects</p>
+              <div className="text-center p-3 bg-black bg-opacity-20 rounded-lg">
+                <h3 className="text-2xl md:text-3xl font-bold text-primary">3</h3>
+                <p className="text-gray-300 text-sm">Subjects</p>
               </div>
             </div>
           </div>
           
           {/* Hero image */}
-          <div className="relative">
+          <div className="relative hidden lg:block">
             <div className="relative z-10 rounded-xl overflow-hidden shadow-2xl">
-              <Image 
+              <img 
                 src="/images/Children1.png" 
                 alt="Students learning with PracticeGenius worksheets" 
-                width={600} 
-                height={450}
                 className="w-full h-auto"
               />
             </div>
-            
-            {/* No decorative elements */}
           </div>
         </div>
-        
-        {/* Additional space at the bottom */}
-        <div className="mt-16"></div>
       </div>
     </section>
   );
