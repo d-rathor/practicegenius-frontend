@@ -11,8 +11,7 @@ const nextConfig = {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api',
     NEXT_PUBLIC_RAZORPAY_KEY_ID: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_placeholder',
   },
-  // Enable static exports for Netlify
-  output: 'export',
+
   // Disable source maps in production to reduce bundle size
   productionBrowserSourceMaps: false,
   // Disable type checking during build for faster builds

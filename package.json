@@ -6,8 +6,6 @@
     "dev": "next dev",
     "prebuild": "rimraf .next out",
     "build": "next build",
-    "postbuild": "next export",
-    "postexport": "cp -r public/. out/",
     "start": "next start",
     "lint": "next lint"
   },
