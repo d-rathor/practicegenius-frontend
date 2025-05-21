@@ -1,22 +1,8 @@
 import React, { Suspense } from 'react';
 import MainLayout from '@/components/MainLayout';
-import dynamic from 'next/dynamic';
-
-// Dynamically import client components with no SSR
-const WorksheetFilters = dynamic(
-  () => import('@/components/worksheets/WorksheetFilters'),
-  { ssr: false }
-);
-
-const WorksheetSearch = dynamic(
-  () => import('@/components/worksheets/WorksheetSearch'),
-  { ssr: false }
-);
-
-const WorksheetGridClient = dynamic(
-  () => import('@/components/worksheets/WorksheetGrid'),
-  { ssr: false }
-);
+import WorksheetFiltersWrapper from '@/components/worksheets/WorksheetFiltersWrapper';
+import WorksheetSearchWrapper from '@/components/worksheets/WorksheetSearchWrapper';
+import WorksheetGridClientWrapper from '@/components/worksheets/WorksheetGridClientWrapper';
 
 export default function WorksheetsPage() {
   return (
@@ -34,26 +20,20 @@ export default function WorksheetsPage() {
           </div>
 
           {/* Search and Filters - Client Components */}
-          <Suspense fallback={<div>Loading search...</div>}>
-            <div className="mb-8">
-              <WorksheetSearch />
+          <div className="mb-8">
+              <WorksheetSearchWrapper />
             </div>
-          </Suspense>
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Filters Sidebar - Client Component */}
-            <Suspense fallback={<div>Loading filters...</div>}>
-              <div className="lg:col-span-1">
-                <WorksheetFilters />
+            <div className="lg:col-span-1">
+                <WorksheetFiltersWrapper />
               </div>
-            </Suspense>
 
             {/* Worksheets Grid - Client Component */}
-            <Suspense fallback={<div>Loading worksheets...</div>}>
-              <div className="lg:col-span-3">
-                <WorksheetGridClient />
+            <div className="lg:col-span-3">
+                <WorksheetGridClientWrapper />
               </div>
-            </Suspense>
           </div>
         </div>
       </div>
