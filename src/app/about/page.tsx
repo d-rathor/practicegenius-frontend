@@ -15,7 +15,7 @@ export default function AboutPage() {
             <div className="order-2 md:order-1">
               <div className="relative h-[400px] md:h-[500px] rounded-lg overflow-hidden shadow-xl">
                 <Image 
-                  src="/images/qwe1-edited.jpg" 
+                  src="/qwe1-edited.jpg" 
                   alt="About Practice Genius" 
                   fill
                   className="object-cover"
