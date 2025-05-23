@@ -1,12 +1,6 @@
 import React, { Suspense } from 'react';
 import MainLayout from '@/components/MainLayout';
-import dynamic from 'next/dynamic';
-
-// Dynamically import the client component with no SSR
-const CartContent = dynamic(
-  () => import('@/components/cart/CartContent'),
-  { ssr: false }
-);
+import CartClientWrapper from '@/components/cart/CartClientWrapper';
 
 export default function CartPage() {
   return (
@@ -16,7 +10,7 @@ export default function CartPage() {
           <h1 className="text-3xl font-bold mb-8">Shopping Cart</h1>
           
           <Suspense fallback={<div className="text-center py-12">Loading cart...</div>}>
-            <CartContent />
+            <CartClientWrapper />
           </Suspense>
         </div>
       </div>

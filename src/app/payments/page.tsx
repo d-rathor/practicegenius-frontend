@@ -1,12 +1,6 @@
 import React, { Suspense } from 'react';
 import MainLayout from '@/components/MainLayout';
-import dynamic from 'next/dynamic';
-
-// Dynamically import the client component with no SSR
-const PaymentContent = dynamic(
-  () => import('@/components/payments/PaymentContent'),
-  { ssr: false }
-);
+import PaymentClientWrapper from '@/components/payments/PaymentClientWrapper';
 
 export default function PaymentPage() {
   return (
@@ -16,7 +10,7 @@ export default function PaymentPage() {
           <h1 className="text-3xl font-bold mb-8">Payment</h1>
           
           <Suspense fallback={<div className="text-center py-12">Loading payment details...</div>}>
-            <PaymentContent />
+            <PaymentClientWrapper />
           </Suspense>
         </div>
       </div>
