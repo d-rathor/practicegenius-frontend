@@ -24,19 +24,19 @@ const Header: React.FC<HeaderProps> = ({
   };
   
   return (
-    <header className="bg-white shadow-md py-4 fixed top-0 left-0 right-0 z-50 h-16 md:h-20 flex items-center">
+    <header className="bg-white shadow-md py-4 fixed top-0 left-0 right-0 z-50 h-20 md:h-24 flex items-center">
       <div className="container mx-auto px-4 w-full">
         <div className="flex justify-between items-center">
           {/* Logo */}
           <Link href="/" className="flex items-center">
-            <div className="relative h-10 w-10 mr-2">
+            <div className="relative h-24 w-24 mr-3">
               <img 
                 src="/images/Logo3.png" 
                 alt="PracticeGenius Logo"
-                className="h-10 w-auto object-contain"
+                className="h-24 w-auto object-contain"
               />
             </div>
-            <span className="text-xl font-bold text-[#ff6b00]">
+            <span className="text-2xl font-bold text-[#ff6b00]">
               Practice<span className="text-[#333333]">Genius</span>
             </span>
           </Link>

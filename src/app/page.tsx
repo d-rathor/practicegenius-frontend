@@ -95,7 +95,7 @@ export default function Home() {
             <div className="bg-white p-6 rounded-lg shadow-lg border-2 border-primary relative transform scale-105">
               <div className="absolute top-0 right-0 bg-primary text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">POPULAR</div>
               <h3 className="text-xl font-bold mb-2">Essential</h3>
-              <p className="text-3xl font-bold mb-4">₹199 <span className="text-sm font-normal text-gray-600">per month</span></p>
+              <p className="text-3xl font-bold mb-4">₹499 <span className="text-sm font-normal text-gray-600">per month</span></p>
               <p className="text-gray-600 mb-6">Perfect for regular learning needs</p>
               <ul className="mb-6 space-y-2">
                 <li className="flex items-center"><svg className="h-5 w-5 text-primary mr-2" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path></svg> Access to all Essential worksheets</li>
@@ -108,7 +108,7 @@ export default function Home() {
             
             <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
               <h3 className="text-xl font-bold mb-2">Premium</h3>
-              <p className="text-3xl font-bold mb-4">₹399 <span className="text-sm font-normal text-gray-600">per month</span></p>
+              <p className="text-3xl font-bold mb-4">₹999 <span className="text-sm font-normal text-gray-600">per month</span></p>
               <p className="text-gray-600 mb-6">Complete access to all resources</p>
               <ul className="mb-6 space-y-2">
                 <li className="flex items-center"><svg className="h-5 w-5 text-primary mr-2" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path></svg> Access to ALL worksheets</li>

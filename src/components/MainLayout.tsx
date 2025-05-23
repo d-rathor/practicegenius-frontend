@@ -56,7 +56,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         userRole={userRole} 
         onLogout={handleLogout} 
       />
-      <div className="h-16 md:h-20"></div> {/* Spacer element to account for fixed header */}
+      <div className="h-20 md:h-24"></div> {/* Spacer element to account for fixed header */}
       <main className="flex-grow">
         {children}
       </main>

@@ -1,18 +1,87 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 const SubscriptionInfo: React.FC = () => {
-  // Mock subscription data
-  const subscription = {
-    plan: 'Essential',
+  // Default subscription data
+  const [subscription, setSubscription] = useState({
+    plan: 'Free',
     status: 'active',
-    startDate: '2025-04-10T00:00:00',
-    endDate: '2025-05-28T23:59:59',
+    startDate: new Date().toISOString(),
+    endDate: new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString(),
     autoRenew: true,
-    price: 199
-  };
+    price: 0
+  });
+
+  // Load subscription data on component mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        // Try to get subscription from localStorage
+        const subscriptionData = localStorage.getItem('user_subscription');
+        const sessionData = localStorage.getItem('practicegenius_session');
+        
+        if (subscriptionData) {
+          // Use data from user_subscription
+          const userSubscription = JSON.parse(subscriptionData);
+          const planName = userSubscription.plan;
+          
+          // Set price based on plan
+          let price = 0;
+          if (planName === 'essential') {
+            price = 499;
+          } else if (planName === 'premium') {
+            price = 999;
+          }
+          
+          setSubscription({
+            plan: planName.charAt(0).toUpperCase() + planName.slice(1),
+            status: userSubscription.status || 'active',
+            startDate: userSubscription.startDate || new Date().toISOString(),
+            endDate: userSubscription.endDate || new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString(),
+            autoRenew: true,
+            price: price
+          });
+        } else if (sessionData) {
+          // Fallback to session data
+          const session = JSON.parse(sessionData);
+          if (session.user && session.user.subscriptionPlan) {
+            const planName = session.user.subscriptionPlan.toLowerCase();
+            
+            // Set price based on plan
+            let price = 0;
+            if (planName === 'essential') {
+              price = 499;
+            } else if (planName === 'premium') {
+              price = 999;
+            }
+            
+            setSubscription({
+              plan: planName.charAt(0).toUpperCase() + planName.slice(1),
+              status: 'active',
+              startDate: session.user.subscriptionDate || new Date().toISOString(),
+              endDate: new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString(),
+              autoRenew: true,
+              price: price
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error loading subscription data:', error);
+      }
+    }
+    
+    // Listen for storage changes to update subscription info
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === 'user_subscription' || event.key === 'practicegenius_session' || event.key === 'force_refresh') {
+        window.location.reload();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   // Function to format date
   const formatDate = (dateString: string) => {

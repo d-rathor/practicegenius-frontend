@@ -43,12 +43,12 @@ export default function SubscriptionPage() {
                     </div>
                     <h3 className="text-lg font-semibold mb-2 mt-4">Essential Plan</h3>
                     <p className="text-gray-600 mb-4">Access to all essential worksheets</p>
-                    <p className="text-xl font-bold mb-4">₹199<span className="text-sm font-normal text-gray-500">/month</span></p>
+                    <p className="text-xl font-bold mb-4">₹499<span className="text-sm font-normal text-gray-500">/month</span></p>
                   </div>
                   <div className="border border-gray-200 rounded-lg p-6">
                     <h3 className="text-lg font-semibold mb-2">Premium Plan</h3>
                     <p className="text-gray-600 mb-4">Full access to all worksheets</p>
-                    <p className="text-xl font-bold mb-4">₹399<span className="text-sm font-normal text-gray-500">/month</span></p>
+                    <p className="text-xl font-bold mb-4">₹999<span className="text-sm font-normal text-gray-500">/month</span></p>
                   </div>
                 </div>
               </div>

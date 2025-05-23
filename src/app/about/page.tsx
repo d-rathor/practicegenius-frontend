@@ -33,11 +33,11 @@ export default function AboutPage() {
               
               <div className="space-y-4 text-gray-600">
                 <p>
-                  Practice Genius was founded with a simple mission: to make high-quality educational resources accessible to all students.
+                  PracticeGenius was founded by a mother who, like many parents, struggled to find quality worksheets for her school-going child. What began as a personal need turned into a mission — to make learning accessible, engaging, and effective for every child.
                 </p>
                 
                 <p>
-                  Our team of experienced educators and curriculum specialists has developed a comprehensive library of worksheets that align with educational standards and promote effective learning.
+                  PracticeGenius is built with that same spirit — to support parents, educators, and most importantly, students — by offering printable, subject-specific worksheets in Math, Science, and English for Grades 1 to 5. We offer flexible subscription plans, including free access, so that every family can find a learning path that works for them.
                 </p>
                 
                 <p>

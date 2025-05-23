@@ -133,7 +133,7 @@ const PricingContent: React.FC = () => {
     },
     {
       name: 'Essential',
-      price: billingCycle === 'monthly' ? '₹199' : '₹1,908',
+      price: billingCycle === 'monthly' ? '₹499' : '₹4,788',
       period: billingCycle === 'monthly' ? 'per month' : 'per year',
       description: 'Perfect for regular learning needs',
       features: [
@@ -154,7 +154,7 @@ const PricingContent: React.FC = () => {
     },
     {
       name: 'Premium',
-      price: billingCycle === 'monthly' ? '₹399' : '₹3,828',
+      price: billingCycle === 'monthly' ? '₹999' : '₹9,588',
       period: billingCycle === 'monthly' ? 'per month' : 'per year',
       description: 'Complete access to all resources',
       features: [
