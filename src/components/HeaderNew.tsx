@@ -76,12 +76,12 @@ const Header: React.FC<HeaderProps> = ({
               About
             </Link>
             <Link 
-              href="/contact" 
+              href="/help" 
               className={`font-medium hover:text-[#ff6b00] transition-colors ${
-                pathname === '/contact' ? 'text-[#ff6b00]' : 'text-[#333333]'
+                pathname === '/help' ? 'text-[#ff6b00]' : 'text-[#333333]'
               }`}
             >
-              Contact
+              Help
             </Link>
           </nav>
 
@@ -186,11 +186,11 @@ const Header: React.FC<HeaderProps> = ({
               About
             </Link>
             <Link 
-              href="/contact" 
-              className={`px-4 py-3 ${pathname === '/contact' ? 'text-[#ff6b00] font-medium' : 'text-gray-700 hover:text-[#ff6b00]'} hover:bg-gray-50`}
+              href="/help" 
+              className={`px-4 py-3 ${pathname === '/help' ? 'text-[#ff6b00] font-medium' : 'text-gray-700 hover:text-[#ff6b00]'} hover:bg-gray-50`}
               onClick={() => setIsMenuOpen(false)}
             >
-              Contact
+              Help
             </Link>
 
             {/* Auth Links */}
