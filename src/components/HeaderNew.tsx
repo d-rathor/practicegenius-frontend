@@ -154,40 +154,40 @@ const Header: React.FC<HeaderProps> = ({
 
         {/* Mobile menu */}
         <div 
-          className={`md:hidden transition-all duration-300 overflow-hidden ${isMenuOpen ? 'max-h-screen py-4' : 'max-h-0'}`}
+          className={`md:hidden absolute left-0 right-0 bg-white border border-gray-200 shadow-lg rounded-b-lg z-50 transition-all duration-300 overflow-hidden ${isMenuOpen ? 'max-h-screen py-4 mt-2' : 'max-h-0'}`}
         >
-          <div className="flex flex-col space-y-3">
+          <div className="flex flex-col space-y-1">
             <Link 
               href="/" 
-              className={`px-4 py-2 rounded-md ${pathname === '/' ? 'bg-gray-100 text-[#ff6b00]' : 'text-[#333333] hover:bg-gray-100'}`}
+              className={`px-4 py-3 ${pathname === '/' ? 'text-[#ff6b00] font-medium' : 'text-gray-700 hover:text-[#ff6b00]'} hover:bg-gray-50`}
               onClick={() => setIsMenuOpen(false)}
             >
               Home
             </Link>
             <Link 
               href="/worksheets" 
-              className={`px-4 py-2 rounded-md ${pathname?.startsWith('/worksheets') ? 'bg-gray-100 text-[#ff6b00]' : 'text-[#333333] hover:bg-gray-100'}`}
+              className={`px-4 py-3 ${pathname?.startsWith('/worksheets') ? 'text-[#ff6b00] font-medium' : 'text-gray-700 hover:text-[#ff6b00]'} hover:bg-gray-50`}
               onClick={() => setIsMenuOpen(false)}
             >
               Worksheets
             </Link>
             <Link 
               href="/pricing" 
-              className={`px-4 py-2 rounded-md ${pathname === '/pricing' ? 'bg-gray-100 text-[#ff6b00]' : 'text-[#333333] hover:bg-gray-100'}`}
+              className={`px-4 py-3 ${pathname === '/pricing' ? 'text-[#ff6b00] font-medium' : 'text-gray-700 hover:text-[#ff6b00]'} hover:bg-gray-50`}
               onClick={() => setIsMenuOpen(false)}
             >
               Pricing
             </Link>
             <Link 
               href="/about" 
-              className={`px-4 py-2 rounded-md ${pathname === '/about' ? 'bg-gray-100 text-[#ff6b00]' : 'text-[#333333] hover:bg-gray-100'}`}
+              className={`px-4 py-3 ${pathname === '/about' ? 'text-[#ff6b00] font-medium' : 'text-gray-700 hover:text-[#ff6b00]'} hover:bg-gray-50`}
               onClick={() => setIsMenuOpen(false)}
             >
               About
             </Link>
             <Link 
               href="/contact" 
-              className={`px-4 py-2 rounded-md ${pathname === '/contact' ? 'bg-gray-100 text-[#ff6b00]' : 'text-[#333333] hover:bg-gray-100'}`}
+              className={`px-4 py-3 ${pathname === '/contact' ? 'text-[#ff6b00] font-medium' : 'text-gray-700 hover:text-[#ff6b00]'} hover:bg-gray-50`}
               onClick={() => setIsMenuOpen(false)}
             >
               Contact
