@@ -5,13 +5,26 @@ import MainLayout from '@/components/MainLayout';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { countries } from 'countries-list';
 
 export default function RegisterPage() {
+  interface User {
+    id: string;
+    username: string;
+    email: string;
+    password?: string; // Password might not be stored if using external auth
+    googleId?: string;
+    role: string;
+    subscriptionPlan: string;
+    createdAt: string;
+  }
+
   const [formData, setFormData] = useState({
     username: '',
     email: '',
     password: '',
     confirmPassword: '',
+    country: '',
     agreeToTerms: false
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
@@ -69,8 +82,16 @@ export default function RegisterPage() {
     }
   }, [router]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
+  const [passwordStrength, setPasswordStrength] = useState(0);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    const checked = type === 'checkbox' ? (e.target as HTMLInputElement).checked : false;
+
+    if (name === 'password') {
+      const strength = calculatePasswordStrength(value);
+      setPasswordStrength(strength);
+    }
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
@@ -101,10 +122,11 @@ export default function RegisterPage() {
     
     if (!formData.password) {
       errors.password = 'Password is required';
-    } else if (formData.password.length < 8) {
-      errors.password = 'Password must be at least 8 characters long';
-    } else if (!/(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])/.test(formData.password)) {
-      errors.password = 'Password must include at least one uppercase letter, one number, and one special character';
+    }
+    // Password strength is now visually indicated, no strict validation rules here.
+    
+    if (!formData.country) {
+      errors.country = 'Country is required';
     }
     
     if (formData.password !== formData.confirmPassword) {
@@ -134,11 +156,11 @@ export default function RegisterPage() {
       // Check if localStorage is available (not server-side)
       if (typeof window !== 'undefined') {
         // Direct localStorage registration
-        let users = [];
+        let users: User[] = [];
         try {
           const storedUsers = localStorage.getItem('practicegenius_users');
           if (storedUsers) {
-            users = JSON.parse(storedUsers);
+            users = JSON.parse(storedUsers) as User[];
           }
         } catch (e) {
           console.error('Error parsing stored users:', e);
@@ -146,7 +168,7 @@ export default function RegisterPage() {
         }
         
         // Check if user already exists
-        const existingUser = users.find((u: any) => 
+        const existingUser = users.find((u: User) => 
           u.email === formData.email || u.username === formData.username
         );
         
@@ -157,7 +179,7 @@ export default function RegisterPage() {
         }
         
         // Create new user
-        const newUser = {
+        const newUser: User = {
           id: Date.now().toString(),
           username: formData.username,
           email: formData.email,
@@ -194,6 +216,18 @@ export default function RegisterPage() {
     }
   };
 
+  const calculatePasswordStrength = (password: string) => {
+    let strength = 0;
+    if (password.length > 5) strength += 10;
+    if (password.length > 8) strength += 20;
+    if (password.length > 12) strength += 20;
+    if (/[A-Z]/.test(password)) strength += 10;
+    if (/[a-z]/.test(password)) strength += 10;
+    if (/[0-9]/.test(password)) strength += 10;
+    if (/[^A-Za-z0-9]/.test(password)) strength += 20;
+    return Math.min(strength, 100);
+  };
+
   const handleGoogleSignUp = async () => {
     try {
       setError(null);
@@ -201,37 +235,37 @@ export default function RegisterPage() {
       // Check if localStorage is available (not server-side)
       if (typeof window !== 'undefined') {
         // For development, create a mock Google user
-        const googleUser = {
+        const mockGoogleUser: User = {
           id: 'google-' + Date.now().toString(),
-          username: 'Google User',
-          email: 'google-user@example.com',
-          googleId: 'mock-google-id-' + Date.now(),
+          username: 'GoogleUser' + Date.now(),
+          email: 'googleuser' + Date.now() + '@example.com',
+          googleId: 'google_' + Date.now(),
           role: 'user',
           subscriptionPlan: 'free',
           createdAt: new Date().toISOString()
         };
         
         // Save to users list
-        let users = [];
+        let users: User[] = [];
         try {
           const storedUsers = localStorage.getItem('practicegenius_users');
           if (storedUsers) {
-            users = JSON.parse(storedUsers);
+            users = JSON.parse(storedUsers) as User[];
           }
         } catch (e) {
           console.error('Error parsing stored users:', e);
           users = [];
         }
         
-        users.push(googleUser);
+        users.push(mockGoogleUser);
         localStorage.setItem('practicegenius_users', JSON.stringify(users));
         
         // Create session
         const mockSession = {
           user: {
-            id: googleUser.id,
-            name: googleUser.username,
-            email: googleUser.email
+            id: mockGoogleUser.id,
+            name: mockGoogleUser.username,
+            email: mockGoogleUser.email
           },
           expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
         };
@@ -311,9 +345,16 @@ export default function RegisterPage() {
                     onChange={handleChange}
                     required
                   />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Password must be at least 8 characters long with at least one uppercase letter, one number, and one special character.
-                  </p>
+                  <div className="mt-2 h-2 w-full bg-gray-200 rounded-full">
+                    <div
+                      className="h-full rounded-full"
+                      style={{
+                        width: `${passwordStrength}%`,
+                        backgroundColor: passwordStrength < 30 ? 'red' : passwordStrength < 70 ? 'orange' : 'green',
+                      }}
+                    ></div>
+                  </div>
+                  <p className="mt-2 text-sm text-gray-600">Password strength: {passwordStrength}%</p>
                   {formErrors.password && (
                     <p className="text-red-500 text-xs mt-1">{formErrors.password}</p>
                   )}
@@ -333,6 +374,28 @@ export default function RegisterPage() {
                   />
                   {formErrors.confirmPassword && (
                     <p className="text-red-500 text-xs mt-1">{formErrors.confirmPassword}</p>
+                  )}
+                </div>
+
+                <div className="mb-4">
+                  <label htmlFor="country" className="form-label">Country</label>
+                  <select
+                    id="country"
+                    name="country"
+                    value={formData.country}
+                    onChange={handleChange}
+                    className={`form-input ${formErrors.country ? 'border-red-500' : ''}`}
+                    required
+                  >
+                    <option value="">Select your country</option>
+                    {Object.keys(countries).map((code) => (
+                      <option key={code} value={countries[code as keyof typeof countries].name}>
+                        {countries[code as keyof typeof countries].name}
+                      </option>
+                    ))}
+                  </select>
+                  {formErrors.country && (
+                    <p className="text-red-500 text-xs mt-1">{formErrors.country}</p>
                   )}
                 </div>
 

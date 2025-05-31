@@ -116,7 +116,7 @@ const Header: React.FC<HeaderProps> = ({
 
         {/* Mobile menu button */}
         <button 
-          className="md:hidden flex items-center p-2 rounded-md text-white bg-red-600 hover:bg-red-700 focus:bg-red-800"
+          className="md:hidden flex items-center p-2 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200"
           onClick={toggleMenu}
           aria-expanded={isMenuOpen}
           aria-label="Toggle menu"
@@ -131,64 +131,64 @@ const Header: React.FC<HeaderProps> = ({
             </svg>
           )}
         </button>
+        </div>
       </div>
 
       {/* Mobile menu */}
       {isMenuOpen && (
-        <nav className="md:hidden w-full bg-yellow-100 border-4 border-red-500 rounded-b-2xl shadow-lg py-4 px-4 mt-2 transition-all duration-300">
-          <div className="text-2xl font-extrabold text-red-700 text-center mb-4">MENU OPEN</div>
-          <div className="flex flex-col space-y-3">
+        <nav className="md:hidden w-full bg-white border border-gray-200 rounded-lg shadow-md py-4 px-4 mt-2 transition-all duration-300 absolute left-0 right-0 z-50">
+          <div className="flex flex-col space-y-2">
             {/* Main Navigation Links: Always visible */}
             <Link 
               href="/" 
-              className={`px-4 py-2 rounded-md text-white font-bold shadow-sm hover:bg-primary/10 hover:text-primary active:bg-primary/20 transition-colors duration-150 ${pathname === '/' ? 'bg-primary/10 text-primary' : ''}`}
+              className={`px-4 py-3 text-gray-700 hover:text-primary hover:bg-gray-50 transition-colors duration-150 ${pathname === '/' ? 'text-primary font-medium' : ''}`}
               onClick={() => setIsMenuOpen(false)}
             >
               Home
             </Link>
             <Link 
               href="/worksheets" 
-              className={`px-4 py-2 rounded-md text-white font-bold shadow-sm hover:bg-primary/10 hover:text-primary active:bg-primary/20 transition-colors duration-150 ${pathname?.startsWith('/worksheets') ? 'bg-primary/10 text-primary' : ''}`}
+              className={`px-4 py-3 text-gray-700 hover:text-primary hover:bg-gray-50 transition-colors duration-150 ${pathname?.startsWith('/worksheets') ? 'text-primary font-medium' : ''}`}
               onClick={() => setIsMenuOpen(false)}
             >
               Worksheets
             </Link>
             <Link 
               href="/pricing" 
-              className={`px-4 py-2 rounded-md text-white font-bold shadow-sm hover:bg-primary/10 hover:text-primary active:bg-primary/20 transition-colors duration-150 ${pathname === '/pricing' ? 'bg-primary/10 text-primary' : ''}`}
+              className={`px-4 py-3 text-gray-700 hover:text-primary hover:bg-gray-50 transition-colors duration-150 ${pathname === '/pricing' ? 'text-primary font-medium' : ''}`}
               onClick={() => setIsMenuOpen(false)}
             >
               Pricing
             </Link>
             <Link 
               href="/about" 
-              className={`px-4 py-2 rounded-md text-white font-bold shadow-sm hover:bg-primary/10 hover:text-primary active:bg-primary/20 transition-colors duration-150 ${pathname === '/about' ? 'bg-primary/10 text-primary' : ''}`}
+              className={`px-4 py-3 text-gray-700 hover:text-primary hover:bg-gray-50 transition-colors duration-150 ${pathname === '/about' ? 'text-primary font-medium' : ''}`}
               onClick={() => setIsMenuOpen(false)}
             >
               About
             </Link>
             <Link 
               href="/contact" 
-              className={`px-4 py-2 rounded-md text-white font-bold shadow-sm hover:bg-primary/10 hover:text-primary active:bg-primary/20 transition-colors duration-150 ${pathname === '/contact' ? 'bg-primary/10 text-primary' : ''}`}
+              className={`px-4 py-3 text-gray-700 hover:text-primary hover:bg-gray-50 transition-colors duration-150 ${pathname === '/contact' ? 'text-primary font-medium' : ''}`}
               onClick={() => setIsMenuOpen(false)}
             >
               Contact
             </Link>
 
             {/* Divider and Auth Links: Conditional */}
-            <div className="pt-4 border-t border-gray-200">
+            <div className="pt-3 mt-2 border-t border-gray-200">
               {isLoggedIn ? (
                 <>
                   <Link 
                     href="/dashboard" 
-                    className="block font-medium py-2 text-white hover:text-primary"
+                    className="block px-4 py-3 text-gray-700 hover:text-primary hover:bg-gray-50 transition-colors duration-150"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Dashboard
                   </Link>
                   <Link 
                     href="/profile" 
-                    className="block font-medium py-2 text-white hover:text-primary"
+                    className="block px-4 py-3 text-gray-700 hover:text-primary hover:bg-gray-50 transition-colors duration-150"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Profile
@@ -196,7 +196,7 @@ const Header: React.FC<HeaderProps> = ({
                   {userRole === 'admin' && (
                     <Link 
                       href="/admin" 
-                      className="block font-medium py-2 text-white hover:text-primary"
+                      className="block px-4 py-3 text-gray-700 hover:text-primary hover:bg-gray-50 transition-colors duration-150"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Admin Panel
@@ -207,13 +207,13 @@ const Header: React.FC<HeaderProps> = ({
                       if (onLogout) onLogout();
                       setIsMenuOpen(false);
                     }} 
-                    className="block w-full text-left font-medium py-2 text-red-600"
+                    className="block w-full text-left px-4 py-3 text-red-600 hover:bg-gray-50 transition-colors duration-150"
                   >
                     Logout
                   </button>
                 </>
               ) : (
-                <div className="flex flex-col space-y-2">
+                <div className="flex flex-col space-y-3 px-4 pt-2">
                   <Link 
                     href="/login" 
                     className="btn btn-outline w-full"
@@ -231,7 +231,7 @@ const Header: React.FC<HeaderProps> = ({
                 </div>
               )}
             </div>
-        </div>
+          </div>
         </nav>
       )}
     </header>

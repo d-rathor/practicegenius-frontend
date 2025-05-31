@@ -23,8 +23,16 @@ const CheckIcon = ({ className }: { className?: string }) => (
 const PricingContent: React.FC = () => {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [currentPlan, setCurrentPlan] = useState('free');
+  const [currentPlan, setCurrentPlan] = useState<'free' | 'essential' | 'premium'>('free');
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
+
+  // Helper function to determine the effective current plan based on hierarchy
+  const getEffectiveCurrentPlan = (plan: string): 'free' | 'essential' | 'premium' => {
+    const lowerCasePlan = plan.toLowerCase();
+    if (lowerCasePlan === 'premium') return 'premium';
+    if (lowerCasePlan === 'essential') return 'essential';
+    return 'free';
+  };
 
   // Check user authentication and subscription status on mount
   useEffect(() => {
@@ -35,7 +43,7 @@ const PricingContent: React.FC = () => {
         if (subscriptionData) {
           const subscription = JSON.parse(subscriptionData);
           if (subscription.plan) {
-            setCurrentPlan(subscription.plan.toLowerCase());
+            setCurrentPlan(getEffectiveCurrentPlan(subscription.plan));
           }
         }
         
@@ -48,7 +56,7 @@ const PricingContent: React.FC = () => {
             
             // If no subscription info but user has plan in session
             if (!subscriptionData && session.user.subscriptionPlan) {
-              setCurrentPlan(session.user.subscriptionPlan.toLowerCase());
+              setCurrentPlan(getEffectiveCurrentPlan(session.user.subscriptionPlan));
             }
           }
         }
@@ -126,7 +134,7 @@ const PricingContent: React.FC = () => {
         'No new worksheet updates',
         'Basic support only'
       ],
-      buttonText: isLoggedIn ? 'Current Plan' : 'Get Started',
+      buttonText: currentPlan === 'free' || currentPlan === 'essential' || currentPlan === 'premium' ? 'Included' : 'Get Started',
       planId: 'free',
       highlighted: false,
       disabled: currentPlan === 'free'
@@ -147,10 +155,10 @@ const PricingContent: React.FC = () => {
         'No access to Premium worksheets',
         'Standard support response time'
       ],
-      buttonText: currentPlan === 'essential' ? 'Current Plan' : 'Subscribe Now',
+      buttonText: currentPlan === 'essential' || currentPlan === 'premium' ? 'Included' : 'Subscribe Now',
       planId: 'essential',
       highlighted: true,
-      disabled: currentPlan === 'essential'
+      disabled: currentPlan === 'essential' || currentPlan === 'premium'
     },
     {
       name: 'Premium',
