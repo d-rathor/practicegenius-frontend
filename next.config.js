@@ -38,6 +38,17 @@ const nextConfig = {
   },
   // Enable trailing slashes for better compatibility with static hosting
   trailingSlash: true,
+
+  // Add redirects
+  async redirects() {
+    return [
+      {
+        source: '/profile',
+        destination: '/dashboard/profile',
+        permanent: true, // Use permanent: true for a 308 permanent redirect
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;

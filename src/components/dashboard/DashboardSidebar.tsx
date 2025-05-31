@@ -97,7 +97,7 @@ const DashboardSidebar: React.FC = () => {
     },
     {
       name: 'Help & Support',
-      href: '/dashboard/support',
+      href: '/help',
       icon: (
         <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -132,18 +132,8 @@ const DashboardSidebar: React.FC = () => {
         {/* User info */}
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center">
-            <div className="w-12 h-12 rounded-full overflow-hidden mr-4">
-              <Image 
-                src="/avatars/default-avatar.jpg" 
-                alt="User Avatar" 
-                width={48} 
-                height={48}
-                className="w-full h-full object-cover"
-              />
-            </div>
             <div>
               <h3 className="font-semibold">{userName}</h3>
-              <p className="text-sm text-gray-600">{userEmail}</p>
               <div className="mt-1">
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                   {userPlan}

@@ -1,4 +1,7 @@
+"use client";
+
 import React from 'react';
+import { useSession } from 'next-auth/react';
 import MainLayout from '@/components/MainLayout';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -8,6 +11,7 @@ import RecentDownloads from '@/components/dashboard/RecentDownloads';
 import SubscriptionInfo from '@/components/dashboard/SubscriptionInfo';
 
 export default function DashboardPage() {
+  const { data: session } = useSession();
   return (
     <MainLayout>
       <div className="bg-background min-h-screen pt-20">
@@ -16,7 +20,7 @@ export default function DashboardPage() {
           <div className="mb-8">
             <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
             <p className="text-gray-600">
-              Welcome back! Manage your account and access your worksheets.
+              {session?.user?.name ? `Welcome ${session.user.name}!` : 'Welcome back!'} Manage your account and access your worksheets.
             </p>
           </div>
 
@@ -51,7 +55,7 @@ export default function DashboardPage() {
                     <span className="font-medium">Browse Worksheets</span>
                   </Link>
                   <Link
-                    href="/profile"
+                    href="/dashboard/profile"
                     className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:border-primary hover:shadow-sm transition-all"
                   >
                     <svg className="h-8 w-8 text-primary mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
