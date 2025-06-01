@@ -1,10 +1,22 @@
-import React, { Suspense } from 'react';
+"use client";
+
+import React from 'react';
 import MainLayout from '@/components/MainLayout';
-import WorksheetFiltersWrapper from '@/components/worksheets/WorksheetFiltersWrapper';
-import WorksheetSearchWrapper from '@/components/worksheets/WorksheetSearchWrapper';
-import WorksheetGridClientWrapper from '@/components/worksheets/WorksheetGridClientWrapper';
+import WorksheetFilters from '@/components/worksheets/WorksheetFilters';
+import WorksheetGrid from '@/components/worksheets/WorksheetGrid';
+import WorksheetSearch from '@/components/worksheets/WorksheetSearch';
+import { useWorksheets } from '@/contexts/WorksheetContext';
 
 export default function WorksheetsPage() {
+  // Get the worksheets context with the getAdminWorksheets function
+  const { getAdminWorksheets } = useWorksheets();
+  
+  // Get only admin-uploaded worksheets for the public page
+  const adminWorksheets = getAdminWorksheets();
+  
+  // Log for debugging
+  console.log('Admin worksheets count:', adminWorksheets?.length || 0);
+  
   return (
     <MainLayout>
       <div className="bg-background min-h-screen pt-20">
@@ -17,23 +29,26 @@ export default function WorksheetsPage() {
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Browse our collection of high-quality worksheets for grades 1-5 in Math, Science, and English.
             </p>
+            <p className="text-sm text-gray-500 mt-2">
+              Showing {adminWorksheets.length} admin-curated worksheets available for download.
+            </p>
           </div>
 
-          {/* Search and Filters - Client Components */}
+          {/* Search and Filters */}
           <div className="mb-8">
-              <WorksheetSearchWrapper />
+              <WorksheetSearch />
             </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Filters Sidebar - Client Component */}
+            {/* Filters Sidebar */}
             <div className="lg:col-span-1">
-                <WorksheetFiltersWrapper />
+                <WorksheetFilters />
               </div>
 
-            {/* Worksheets Grid - Client Component */}
+            {/* Worksheets Grid - Pass only admin worksheets */}
             <div className="lg:col-span-3">
-                <WorksheetGridClientWrapper />
-              </div>
+              <WorksheetGrid adminWorksheets={adminWorksheets} />
+            </div>
           </div>
         </div>
       </div>

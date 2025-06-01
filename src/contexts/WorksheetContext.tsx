@@ -17,6 +17,7 @@ export interface Worksheet {
   createdBy?: string;
   thumbnailUrl?: string;
   downloadUrl?: string;
+  description?: string;
 }
 
 // Initial sample worksheets
@@ -34,7 +35,7 @@ const initialWorksheets: Worksheet[] = [
     createdAt: '2025-04-15T10:30:00',
     isPublic: true,
     createdBy: 'admin',
-    thumbnailUrl: '/images/worksheets/math_thumbnail.jpg',
+    thumbnailUrl: '/images/worksheets/math-grade1-addition.jpg',
     downloadUrl: '/worksheets/addition_subtraction.pdf'
   },
   {
@@ -50,7 +51,7 @@ const initialWorksheets: Worksheet[] = [
     createdAt: '2025-04-10T14:20:00',
     isPublic: true,
     createdBy: 'admin',
-    thumbnailUrl: '/images/worksheets/math_thumbnail.jpg',
+    thumbnailUrl: '/images/worksheets/math-grade2-multiplication.jpg',
     downloadUrl: '/worksheets/multiplication_tables.pdf'
   },
   {
@@ -66,7 +67,7 @@ const initialWorksheets: Worksheet[] = [
     createdAt: '2025-04-05T09:45:00',
     isPublic: true,
     createdBy: 'admin',
-    thumbnailUrl: '/images/worksheets/english_thumbnail.jpg',
+    thumbnailUrl: '/images/worksheets/english-grade3-grammar.jpg',
     downloadUrl: '/worksheets/parts_of_speech.pdf'
   },
   {
@@ -82,7 +83,7 @@ const initialWorksheets: Worksheet[] = [
     createdAt: '2025-04-01T11:15:00',
     isPublic: true,
     createdBy: 'admin',
-    thumbnailUrl: '/images/worksheets/science_thumbnail.jpg',
+    thumbnailUrl: '/images/worksheets/science-grade4-solar-system.jpg',
     downloadUrl: '/worksheets/solar_system.pdf'
   },
   {
@@ -98,11 +99,12 @@ const initialWorksheets: Worksheet[] = [
     createdAt: '2025-03-25T16:30:00',
     isPublic: true,
     createdBy: 'admin',
-    thumbnailUrl: '/images/worksheets/math_thumbnail.jpg',
+    thumbnailUrl: '/images/worksheets/math-grade3-fractions.jpg',
     downloadUrl: '/worksheets/fractions.pdf'
   }
 ];
 
+// Interface for user download tracking
 interface UserDownload {
   userId: string;
   worksheetId: string;
@@ -115,7 +117,7 @@ interface WorksheetContextType {
   addWorksheet: (worksheet: Omit<Worksheet, 'id' | 'downloadCount' | 'createdAt'> | Worksheet) => void;
   deleteWorksheet: (id: string) => void;
   downloadWorksheet: (worksheetId: string, userId: string) => void;
-  getUserDownloadedWorksheets: (userId: string) => Worksheet[];
+  getUserDownloads: (userId: string) => Worksheet[];
   getAdminWorksheets: () => Worksheet[];
 }
 
@@ -176,7 +178,14 @@ export const WorksheetProvider: React.FC<WorksheetProviderProps> = ({ children }
         ...worksheetData as Omit<Worksheet, 'id' | 'downloadCount' | 'createdAt'>,
         id: Date.now().toString(),
         downloadCount: 0,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        // Set default values for new fields
+        isPublic: worksheetData.isPublic !== undefined ? worksheetData.isPublic : true,
+        createdBy: worksheetData.createdBy || 'user',
+        // Ensure plan is set based on subscriptionLevel if not provided
+        plan: worksheetData.plan || (worksheetData.subscriptionLevel === 'free' ? 'Free' : 
+              worksheetData.subscriptionLevel === 'essential' ? 'Essential' : 
+              worksheetData.subscriptionLevel === 'premium' ? 'Premium' : 'Free')
       };
 
       const updatedWorksheets = [...worksheets, newWorksheet];
@@ -190,77 +199,82 @@ export const WorksheetProvider: React.FC<WorksheetProviderProps> = ({ children }
     const updatedWorksheets = worksheets.filter(worksheet => worksheet.id !== id);
     setWorksheets(updatedWorksheets);
     localStorage.setItem('practicegenius_worksheets', JSON.stringify(updatedWorksheets));
+
+    // Also remove any user downloads for this worksheet
+    const updatedUserDownloads = userDownloads.filter(download => download.worksheetId !== id);
+    setUserDownloads(updatedUserDownloads);
+    localStorage.setItem('practicegenius_user_downloads', JSON.stringify(updatedUserDownloads));
   };
 
   // Track a worksheet download by a user
   const downloadWorksheet = (worksheetId: string, userId: string) => {
-    // Add to user downloads
-    const newDownload: UserDownload = {
-      userId,
-      worksheetId,
-      downloadedAt: new Date().toISOString()
-    };
-    const updatedUserDownloads = [...userDownloads, newDownload];
-    setUserDownloads(updatedUserDownloads);
-    localStorage.setItem('practicegenius_user_downloads', JSON.stringify(updatedUserDownloads));
+    // Find the worksheet
+    const worksheet = worksheets.find(w => w.id === worksheetId);
+    if (!worksheet) return;
 
-    // Increment download count for the worksheet
-    const updatedWorksheets = worksheets.map(worksheet => {
-      if (worksheet.id === worksheetId) {
-        return {
-          ...worksheet,
-          downloadCount: worksheet.downloadCount + 1
-        };
-      }
-      return worksheet;
-    });
+    // Increment download count
+    const updatedWorksheet = {
+      ...worksheet,
+      downloadCount: worksheet.downloadCount + 1
+    };
+
+    // Update the worksheet in the worksheets array
+    const updatedWorksheets = worksheets.map(w => 
+      w.id === worksheetId ? updatedWorksheet : w
+    );
     setWorksheets(updatedWorksheets);
     localStorage.setItem('practicegenius_worksheets', JSON.stringify(updatedWorksheets));
+
+    // Add to user downloads if not already downloaded
+    const alreadyDownloaded = userDownloads.some(
+      download => download.worksheetId === worksheetId && download.userId === userId
+    );
+
+    if (!alreadyDownloaded) {
+      const newDownload: UserDownload = {
+        userId,
+        worksheetId,
+        downloadedAt: new Date().toISOString()
+      };
+
+      const updatedUserDownloads = [...userDownloads, newDownload];
+      setUserDownloads(updatedUserDownloads);
+      localStorage.setItem('practicegenius_user_downloads', JSON.stringify(updatedUserDownloads));
+    }
   };
 
   // Get worksheets downloaded by a specific user
-  const getUserDownloadedWorksheets = (userId: string): Worksheet[] => {
-    // Get all worksheet IDs downloaded by this user
+  const getUserDownloads = (userId: string): Worksheet[] => {
+    // Get the IDs of worksheets downloaded by this user
     const userDownloadIds = userDownloads
       .filter(download => download.userId === userId)
       .map(download => download.worksheetId);
 
-    // Return worksheets that match those IDs
+    // Return the worksheets with these IDs
     return worksheets.filter(worksheet => userDownloadIds.includes(worksheet.id));
   };
 
   // Get worksheets uploaded by the admin
   const getAdminWorksheets = (): Worksheet[] => {
     console.log('Total worksheets in context:', worksheets.length);
-    
-    // Log each worksheet for debugging
-    console.log('All worksheets:', worksheets.map(w => ({
-      id: w.id,
-      title: w.title,
-      plan: w.plan,
-      subscriptionLevel: w.subscriptionLevel,
-      createdBy: w.createdBy,
-      isPublic: w.isPublic
-    })));
-    
     console.log('Worksheets with createdBy property:', worksheets.filter(w => w.createdBy !== undefined).length);
     console.log('Admin worksheets:', worksheets.filter(w => w.createdBy === 'admin').length);
     console.log('Public worksheets:', worksheets.filter(w => w.isPublic === true).length);
-    console.log('Admin AND public worksheets:', worksheets.filter(w => w.createdBy === 'admin' && w.isPublic === true).length);
+    
+    // Make sure all worksheets have the createdBy and isPublic properties set
+    const updatedWorksheets = worksheets.map(worksheet => ({
+      ...worksheet,
+      createdBy: worksheet.createdBy || 'admin', // Default to admin if not set
+      isPublic: worksheet.isPublic !== false // Default to true if not set
+    }));
+    
+    // Update the worksheets in localStorage
+    localStorage.setItem('practicegenius_worksheets', JSON.stringify(updatedWorksheets));
     
     // Return only admin-uploaded and public worksheets
-    const adminWorksheets = worksheets.filter(worksheet => 
+    return updatedWorksheets.filter(worksheet => 
       worksheet.createdBy === 'admin' && worksheet.isPublic === true
     );
-    
-    console.log('Final admin worksheets returned:', adminWorksheets.length);
-    console.log('Admin worksheet details:', adminWorksheets.map(w => ({
-      title: w.title,
-      plan: w.plan,
-      subscriptionLevel: w.subscriptionLevel
-    })));
-    
-    return adminWorksheets;
   };
 
   return (
@@ -270,7 +284,7 @@ export const WorksheetProvider: React.FC<WorksheetProviderProps> = ({ children }
       addWorksheet,
       deleteWorksheet,
       downloadWorksheet,
-      getUserDownloadedWorksheets,
+      getUserDownloads,
       getAdminWorksheets
     }}>
       {children}

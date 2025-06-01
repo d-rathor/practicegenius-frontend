@@ -11,7 +11,7 @@ import { useWorksheets, Worksheet } from '@/contexts/WorksheetContext';
 export default function WorksheetsPage() {
   const router = useRouter();
   const { data: session } = useSession();
-  const { getUserDownloadedWorksheets } = useWorksheets();
+  const { getUserDownloads } = useWorksheets();
   
   const [userDownloads, setUserDownloads] = useState<Worksheet[]>([]);
   const [userPlan, setUserPlan] = useState<string>('Free');
@@ -30,7 +30,6 @@ export default function WorksheetsPage() {
   const navigateToPayments = () => router.push('/dashboard/payments');
   const navigateToProfile = () => router.push('/dashboard/profile');
   const navigateToSupport = () => router.push('/dashboard/support');
-
   // Get user data from session and fetch downloaded worksheets
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -71,23 +70,20 @@ export default function WorksheetsPage() {
         console.error('Error parsing session data:', error);
       }
       
-      // In a real app, you would fetch worksheets from an API
-      // For now, we'll use the sample data and filter it based on the user's plan
       setLoading(false);
     }
   }, [session]);
-  
   // Fetch user's downloaded worksheets whenever userId changes
   useEffect(() => {
     if (userId !== 'guest') {
       // Get worksheets downloaded by this user
-      const downloadedWorksheets = getUserDownloadedWorksheets(userId);
+      const downloadedWorksheets = getUserDownloads(userId);
       setUserDownloads(downloadedWorksheets);
       console.log('User downloaded worksheets:', downloadedWorksheets.length);
     }
-  }, [userId, getUserDownloadedWorksheets]);
+  }, [userId, getUserDownloads]);
 
-  // Filter downloaded worksheets based on selected filters
+  // Filter user downloads based on selected filters
   const [filteredDownloads, setFilteredDownloads] = useState<Worksheet[]>([]);
   
   useEffect(() => {
@@ -111,6 +107,21 @@ export default function WorksheetsPage() {
     setFilteredDownloads(filtered);
   }, [userDownloads, filter]);
 
+  // Function to get the color for plan badges
+  const getPlanBadgeColor = (plan: string | undefined) => {
+    const planLower = (plan || '').toLowerCase();
+    switch (planLower) {
+      case 'free':
+        return 'bg-green-100 text-green-800';
+      case 'essential':
+        return 'bg-blue-100 text-blue-800';
+      case 'premium':
+        return 'bg-purple-100 text-purple-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
   // Handle filter changes
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -118,20 +129,6 @@ export default function WorksheetsPage() {
       ...prev,
       [name]: value
     }));
-  };
-
-  // Get plan badge color
-  const getPlanBadgeColor = (plan: string) => {
-    switch (plan) {
-      case 'Free':
-        return 'bg-gray-100 text-gray-800';
-      case 'Essential':
-        return 'bg-blue-100 text-blue-800';
-      case 'Premium':
-        return 'bg-primary-light text-primary-dark';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
   };
 
   return (
@@ -339,8 +336,9 @@ export default function WorksheetsPage() {
                 <div className="bg-white rounded-xl shadow-sm p-6 text-center">
                   <p>Loading worksheets...</p>
                 </div>
-              ) : filteredDownloads.length > 0 ? (
+              ) : userDownloads.length > 0 ? (
                 <div className="bg-white rounded-xl shadow-sm p-6">
+                  <h2 className="text-xl font-semibold mb-4">My Downloaded Worksheets</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredDownloads.map((worksheet) => (
                       <div key={worksheet.id} className="border border-gray-200 rounded-lg overflow-hidden flex flex-col">
@@ -353,8 +351,8 @@ export default function WorksheetsPage() {
                           </div>
                           
                           {/* Plan badge */}
-                          <div className={`absolute top-2 right-2 px-2 py-1 rounded-md text-xs font-medium ${getPlanBadgeColor(worksheet.plan)}`}>
-                            {worksheet.plan}
+                          <div className={`absolute top-2 right-2 px-2 py-1 rounded-md text-xs font-medium ${getPlanBadgeColor(worksheet.subscriptionLevel || worksheet.plan || 'Free')}`}>
+                            {worksheet.subscriptionLevel || worksheet.plan || 'Free'}
                           </div>
                         </div>
                         
@@ -366,7 +364,7 @@ export default function WorksheetsPage() {
                             {worksheet.subject} | Grade {worksheet.grade}
                           </div>
                           <p className="text-sm text-gray-600 mb-4">
-                            {worksheet.topic || 'No description available'}
+                            {worksheet.topic || worksheet.description || 'No description available'}
                           </p>
                           <button
                             onClick={() => alert(`This is a demo. In a production environment, this would download the ${worksheet.title} worksheet.`)}
@@ -375,7 +373,7 @@ export default function WorksheetsPage() {
                             <svg className="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                             </svg>
-                            Download
+                            Download Again
                           </button>
                         </div>
                       </div>
@@ -388,20 +386,21 @@ export default function WorksheetsPage() {
                     <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                    <h3 className="mt-2 text-sm font-medium text-gray-900">No worksheets found</h3>
+                    <h3 className="mt-2 text-sm font-medium text-gray-900">No downloaded worksheets found</h3>
                     <p className="mt-1 text-sm text-gray-500">
-                      No worksheets match your current filters or subscription plan.
+                      You haven't downloaded any worksheets yet. Visit the public worksheets page to find and download worksheets.
                     </p>
-                    {userPlan !== 'Premium' && (
-                      <div className="mt-6">
-                        <button
-                          onClick={() => alert('This is a demo. In a production environment, this would take you to the subscription upgrade page.')}
-                          className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-                        >
-                          Upgrade Your Plan
-                        </button>
-                      </div>
-                    )}
+                    <div className="mt-6">
+                      <a 
+                        href="/worksheets"
+                        className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                      >
+                        <svg className="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                        Browse Worksheets
+                      </a>
+                    </div>
                   </div>
                 </div>
               )}
