@@ -16,6 +16,8 @@ export default function WorksheetsPage() {
   const [userDownloads, setUserDownloads] = useState<Worksheet[]>([]);
   const [userPlan, setUserPlan] = useState<string>('Free');
   const [userId, setUserId] = useState<string>('guest');
+  const [userName, setUserName] = useState<string>('');
+  const [userEmail, setUserEmail] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState({
     subject: 'all',
@@ -41,6 +43,10 @@ export default function WorksheetsPage() {
           const userIdValue = session.user.id || session.user.email || 'guest';
           setUserId(userIdValue);
           
+          // Set username and email from session
+          setUserName(session.user.name || 'Practice Genius User');
+          setUserEmail(session.user.email || 'user@example.com');
+          
           // Set a default plan if not available in the session
           // @ts-ignore - TypeScript doesn't know about the subscriptionPlan property
           const planName = session.user.subscriptionPlan || 'Free';
@@ -57,6 +63,10 @@ export default function WorksheetsPage() {
               if (sessionObj.user.id || sessionObj.user.email) {
                 setUserId(sessionObj.user.id || sessionObj.user.email);
               }
+              
+              // Set username and email from localStorage session
+              setUserName(sessionObj.user.name || 'Practice Genius User');
+              setUserEmail(sessionObj.user.email || 'user@example.com');
               
               // Set user subscription plan
               if (sessionObj.user.subscriptionPlan) {
@@ -157,8 +167,8 @@ export default function WorksheetsPage() {
                       </svg>
                     </div>
                     <div>
-                      <h3 className="font-semibold">{session?.user?.name || userId || 'User'}</h3>
-                      <p className="text-sm text-gray-600">{session?.user?.email || userId || 'No email available'}</p>
+                      <h3 className="font-semibold">{userName || 'Practice Genius User'}</h3>
+                      <p className="text-sm text-gray-600">{userEmail || 'user@example.com'}</p>
                       <div className="mt-1">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                           {userPlan} Plan

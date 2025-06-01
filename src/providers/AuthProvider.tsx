@@ -178,8 +178,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const mockSession = {
           user: {
             id: newUser.id,
-            name: newUser.username,
-            email: newUser.email
+            name: newUser.username, // Ensure username is used for display
+            email: newUser.email,
+            subscriptionPlan: 'Free Plan' // Add default subscription plan
           },
           expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
         };

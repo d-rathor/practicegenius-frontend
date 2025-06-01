@@ -92,20 +92,23 @@ export default function EditWorksheetPage() {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       if (originalWorksheet) {
-        // Delete the original worksheet
-        deleteWorksheet(originalWorksheet.id);
-        
-        // Add the updated worksheet with the same ID
+        // Instead of deleting and re-adding, just update the existing worksheet
+        // This preserves all properties and ensures the worksheet stays visible
         addWorksheet({
+          ...originalWorksheet, // Keep all original properties
           title,
           subject: subject as 'math' | 'science' | 'english',
           grade: parseInt(grade),
           subscriptionLevel: plan as 'free' | 'essential' | 'premium',
+          plan: plan.charAt(0).toUpperCase() + plan.slice(1), // Ensure plan is capitalized (Free, Essential, Premium)
           topic,
           fileName: file ? fileName : originalWorksheet.fileName,
+          // Preserve these critical properties
           id: originalWorksheet.id,
           downloadCount: originalWorksheet.downloadCount,
-          createdAt: originalWorksheet.createdAt
+          createdAt: originalWorksheet.createdAt,
+          isPublic: originalWorksheet.isPublic !== false, // Ensure isPublic is preserved
+          createdBy: originalWorksheet.createdBy || 'admin' // Ensure createdBy is preserved
         } as Worksheet);
         
         // Success message

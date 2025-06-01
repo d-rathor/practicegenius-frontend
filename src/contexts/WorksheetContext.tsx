@@ -138,6 +138,7 @@ interface WorksheetProviderProps {
 export const WorksheetProvider: React.FC<WorksheetProviderProps> = ({ children }) => {
   const [worksheets, setWorksheets] = useState<Worksheet[]>([]);
   const [userDownloads, setUserDownloads] = useState<UserDownload[]>([]);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Load worksheets and user downloads from localStorage on initial render
   useEffect(() => {
@@ -146,65 +147,196 @@ export const WorksheetProvider: React.FC<WorksheetProviderProps> = ({ children }
       return;
     }
     
-    // Load worksheets
-    const storedWorksheets = localStorage.getItem('practicegenius_worksheets');
-    if (storedWorksheets) {
-      setWorksheets(JSON.parse(storedWorksheets));
-    } else {
-      // Use initial worksheets if nothing in localStorage
+    console.log('INITIALIZING WORKSHEET CONTEXT');
+    
+    // Load worksheets from localStorage
+    try {
+      const storedWorksheets = localStorage.getItem('practicegenius_worksheets');
+      let worksheetsToUse: Worksheet[] = [];
+      
+      if (storedWorksheets) {
+        try {
+          worksheetsToUse = JSON.parse(storedWorksheets);
+          console.log(`Found ${worksheetsToUse.length} worksheets in localStorage`);
+        } catch (e) {
+          console.error('Error parsing stored worksheets, using initial worksheets:', e);
+          worksheetsToUse = initialWorksheets;
+        }
+      } else {
+        console.log('No worksheets found in localStorage, using initial worksheets');
+        worksheetsToUse = initialWorksheets;
+      }
+      
+      // Ensure all worksheets have the required properties
+      const validWorksheets = worksheetsToUse.map(worksheet => ({
+        ...worksheet,
+        createdBy: worksheet.createdBy || 'admin',
+        isPublic: worksheet.isPublic !== false,
+        plan: worksheet.plan || 'Free',
+        downloadCount: worksheet.downloadCount || 0
+      }));
+      
+      // Update state
+      setWorksheets(validWorksheets);
+      
+      // Save back to localStorage to ensure consistency
+      localStorage.setItem('practicegenius_worksheets', JSON.stringify(validWorksheets));
+      console.log(`Saved ${validWorksheets.length} worksheets to localStorage`);
+      
+      // Load user downloads
+      const storedUserDownloads = localStorage.getItem('practicegenius_user_downloads');
+      if (storedUserDownloads) {
+        try {
+          setUserDownloads(JSON.parse(storedUserDownloads));
+        } catch (e) {
+          console.error('Error parsing stored user downloads:', e);
+          setUserDownloads([]);
+          localStorage.setItem('practicegenius_user_downloads', JSON.stringify([]));
+        }
+      } else {
+        setUserDownloads([]);
+        localStorage.setItem('practicegenius_user_downloads', JSON.stringify([]));
+      }
+      
+      setIsInitialized(true);
+      console.log('WORKSHEET CONTEXT INITIALIZED SUCCESSFULLY');
+    } catch (e) {
+      console.error('Error initializing worksheet context:', e);
+      // Fallback to initial state
       setWorksheets(initialWorksheets);
+      setUserDownloads([]);
       localStorage.setItem('practicegenius_worksheets', JSON.stringify(initialWorksheets));
-    }
-
-    // Load user downloads
-    const storedUserDownloads = localStorage.getItem('practicegenius_user_downloads');
-    if (storedUserDownloads) {
-      setUserDownloads(JSON.parse(storedUserDownloads));
-    } else {
-      // Initialize empty user downloads if nothing in localStorage
       localStorage.setItem('practicegenius_user_downloads', JSON.stringify([]));
+      setIsInitialized(true);
     }
   }, []);
 
   // Add a new worksheet or update an existing one
   const addWorksheet = (worksheetData: Omit<Worksheet, 'id' | 'downloadCount' | 'createdAt'> | Worksheet) => {
-    // Check if this is an existing worksheet (has id, downloadCount, and createdAt)
-    if ('id' in worksheetData && 'downloadCount' in worksheetData && 'createdAt' in worksheetData) {
-      // This is an existing worksheet being updated
-      const existingWorksheet = worksheetData as Worksheet;
-      const updatedWorksheets = worksheets.map(w => 
-        w.id === existingWorksheet.id ? existingWorksheet : w
-      );
-      setWorksheets(updatedWorksheets);
-      
-      // Only update localStorage in browser environment
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('practicegenius_worksheets', JSON.stringify(updatedWorksheets));
-      }
-    } else {
-      // This is a new worksheet
-      const newWorksheet: Worksheet = {
-        ...worksheetData as Omit<Worksheet, 'id' | 'downloadCount' | 'createdAt'>,
-        id: Date.now().toString(),
-        downloadCount: 0,
-        createdAt: new Date().toISOString(),
-        // Set default values for new fields
-        isPublic: worksheetData.isPublic !== undefined ? worksheetData.isPublic : true,
-        createdBy: worksheetData.createdBy || 'user',
-        // Ensure plan is set based on subscriptionLevel if not provided
-        plan: worksheetData.plan || (worksheetData.subscriptionLevel === 'free' ? 'Free' : 
-              worksheetData.subscriptionLevel === 'essential' ? 'Essential' : 
-              worksheetData.subscriptionLevel === 'premium' ? 'Premium' : 'Free')
-      };
-
-      const updatedWorksheets = [...worksheets, newWorksheet];
-      setWorksheets(updatedWorksheets);
-      
-      // Only update localStorage in browser environment
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('practicegenius_worksheets', JSON.stringify(updatedWorksheets));
-      }
+    console.log('===== ADD WORKSHEET CALLED =====');
+    console.log('Worksheet data received:', worksheetData);
+    
+    if (typeof window === 'undefined') {
+      console.error('Cannot add worksheet in server environment');
+      return;
     }
+    
+    try {
+      // Always load the latest worksheets from localStorage first
+      let currentWorksheets: Worksheet[] = [];
+      const storedWorksheets = localStorage.getItem('practicegenius_worksheets');
+      
+      if (storedWorksheets) {
+        try {
+          currentWorksheets = JSON.parse(storedWorksheets);
+          console.log(`Loaded ${currentWorksheets.length} existing worksheets from localStorage`);
+        } catch (e) {
+          console.error('Error parsing stored worksheets:', e);
+          // If we can't parse, use the current state
+          currentWorksheets = [...worksheets];
+        }
+      } else {
+        // If nothing in localStorage, use current state
+        currentWorksheets = [...worksheets];
+      }
+      
+      // Check if this is an existing worksheet (has id)
+      if ('id' in worksheetData) {
+        console.log('Updating existing worksheet with ID:', worksheetData.id);
+        
+        // Find the existing worksheet to preserve any missing properties
+        const existingWorksheetIndex = currentWorksheets.findIndex(w => w.id === worksheetData.id);
+        let updatedWorksheet: Worksheet;
+        
+        if (existingWorksheetIndex >= 0) {
+          // Merge the existing worksheet with the new data, preserving critical properties
+          const existingWorksheet = currentWorksheets[existingWorksheetIndex];
+          updatedWorksheet = {
+            ...existingWorksheet,  // Keep all existing properties as base
+            ...worksheetData,     // Override with new data
+            // Ensure these critical properties are preserved or have proper defaults
+            createdBy: worksheetData.createdBy || existingWorksheet.createdBy || 'admin',
+            isPublic: worksheetData.isPublic !== undefined ? worksheetData.isPublic : (existingWorksheet.isPublic !== false),
+            plan: worksheetData.plan || existingWorksheet.plan || 
+                  (worksheetData.subscriptionLevel === 'free' ? 'Free' : 
+                   worksheetData.subscriptionLevel === 'essential' ? 'Essential' : 
+                   worksheetData.subscriptionLevel === 'premium' ? 'Premium' : 'Free'),
+            // Ensure these are preserved from the original
+            id: existingWorksheet.id,
+            downloadCount: worksheetData.downloadCount !== undefined ? worksheetData.downloadCount : existingWorksheet.downloadCount,
+            createdAt: existingWorksheet.createdAt
+          };
+          
+          console.log('Merged worksheet data:', {
+            id: updatedWorksheet.id,
+            title: updatedWorksheet.title,
+            createdBy: updatedWorksheet.createdBy,
+            isPublic: updatedWorksheet.isPublic,
+            plan: updatedWorksheet.plan
+          });
+        } else {
+          // Worksheet with this ID doesn't exist yet, treat as new with specified ID
+          updatedWorksheet = {
+            ...worksheetData as Worksheet,
+            downloadCount: worksheetData.downloadCount || 0,
+            createdAt: worksheetData.createdAt || new Date().toISOString(),
+            isPublic: worksheetData.isPublic !== undefined ? worksheetData.isPublic : true,
+            createdBy: worksheetData.createdBy || 'admin',
+            plan: worksheetData.plan || 
+                  (worksheetData.subscriptionLevel === 'free' ? 'Free' : 
+                   worksheetData.subscriptionLevel === 'essential' ? 'Essential' : 
+                   worksheetData.subscriptionLevel === 'premium' ? 'Premium' : 'Free')
+          };
+        }
+        
+        // Update the worksheets array
+        const updatedWorksheets = existingWorksheetIndex >= 0 
+          ? currentWorksheets.map(w => w.id === updatedWorksheet.id ? updatedWorksheet : w)
+          : [...currentWorksheets, updatedWorksheet];
+        
+        // Update state and localStorage
+        setWorksheets(updatedWorksheets);
+        localStorage.setItem('practicegenius_worksheets', JSON.stringify(updatedWorksheets));
+        console.log(`Updated worksheet saved. Total count: ${updatedWorksheets.length}`);
+      } else {
+        console.log('Creating new worksheet');
+        // This is a new worksheet
+        const newWorksheet: Worksheet = {
+          ...worksheetData as Omit<Worksheet, 'id' | 'downloadCount' | 'createdAt'>,
+          id: Date.now().toString(),
+          downloadCount: 0,
+          createdAt: new Date().toISOString(),
+          // Set default values for new fields
+          isPublic: worksheetData.isPublic !== undefined ? worksheetData.isPublic : true,
+          createdBy: worksheetData.createdBy || 'admin', // Default to 'admin' instead of 'user'
+          // Ensure plan is set based on subscriptionLevel if not provided
+          plan: worksheetData.plan || (worksheetData.subscriptionLevel === 'free' ? 'Free' : 
+                worksheetData.subscriptionLevel === 'essential' ? 'Essential' : 
+                worksheetData.subscriptionLevel === 'premium' ? 'Premium' : 'Free')
+        };
+
+        console.log('New worksheet created:', {
+          id: newWorksheet.id,
+          title: newWorksheet.title,
+          createdBy: newWorksheet.createdBy,
+          isPublic: newWorksheet.isPublic,
+          plan: newWorksheet.plan
+        });
+        
+        // Add the new worksheet to the current worksheets
+        const updatedWorksheets = [...currentWorksheets, newWorksheet];
+        
+        // Update state and localStorage
+        setWorksheets(updatedWorksheets);
+        localStorage.setItem('practicegenius_worksheets', JSON.stringify(updatedWorksheets));
+        
+        console.log(`New worksheet added to localStorage. Total count: ${updatedWorksheets.length}`);
+      }
+    } catch (e) {
+      console.error('Error adding worksheet:', e);
+    }
+    
+    console.log('===== END ADD WORKSHEET =====');
   };
 
   // Delete a worksheet
@@ -285,27 +417,64 @@ export const WorksheetProvider: React.FC<WorksheetProviderProps> = ({ children }
 
   // Get worksheets uploaded by the admin
   const getAdminWorksheets = (): Worksheet[] => {
-    console.log('Total worksheets in context:', worksheets.length);
-    console.log('Worksheets with createdBy property:', worksheets.filter(w => w.createdBy !== undefined).length);
-    console.log('Admin worksheets:', worksheets.filter(w => w.createdBy === 'admin').length);
-    console.log('Public worksheets:', worksheets.filter(w => w.isPublic === true).length);
+    console.log('===== GET ADMIN WORKSHEETS CALLED =====');
     
-    // Make sure all worksheets have the createdBy and isPublic properties set
-    const updatedWorksheets = worksheets.map(worksheet => ({
-      ...worksheet,
-      createdBy: worksheet.createdBy || 'admin', // Default to admin if not set
-      isPublic: worksheet.isPublic !== false // Default to true if not set
-    }));
-    
-    // Update the worksheets in localStorage only if we're in the browser
+    // Always load the latest worksheets from localStorage first
+    let currentWorksheets = [...worksheets];
     if (typeof window !== 'undefined') {
-      localStorage.setItem('practicegenius_worksheets', JSON.stringify(updatedWorksheets));
+      try {
+        const storedWorksheets = localStorage.getItem('practicegenius_worksheets');
+        if (storedWorksheets) {
+          currentWorksheets = JSON.parse(storedWorksheets);
+          console.log(`Loaded ${currentWorksheets.length} worksheets from localStorage`);
+        }
+      } catch (e) {
+        console.error('Error loading worksheets from localStorage:', e);
+      }
     }
     
-    // Return only admin-uploaded and public worksheets
-    return updatedWorksheets.filter(worksheet => 
-      worksheet.createdBy === 'admin' && worksheet.isPublic === true
-    );
+    console.log('Total worksheets in context:', currentWorksheets.length);
+    
+    // Debug each worksheet in the array
+    currentWorksheets.forEach((w, index) => {
+      console.log(`Worksheet ${index + 1}:`, {
+        id: w.id,
+        title: w.title,
+        createdBy: w.createdBy,
+        isPublic: w.isPublic,
+        subscriptionLevel: w.subscriptionLevel,
+        plan: w.plan
+      });
+    });
+    
+    console.log('Worksheets with createdBy property:', currentWorksheets.filter(w => w.createdBy !== undefined).length);
+    console.log('Admin worksheets:', currentWorksheets.filter(w => w.createdBy === 'admin').length);
+    console.log('Public worksheets:', currentWorksheets.filter(w => w.isPublic === true).length);
+    
+    // IMPORTANT: For the public worksheets page, we need to return ALL worksheets
+    // This ensures any worksheet created in the admin interface will appear
+    
+    // Make sure all worksheets have proper properties
+    const validWorksheets = currentWorksheets.map(worksheet => ({
+      ...worksheet,
+      createdBy: worksheet.createdBy || 'admin',
+      isPublic: worksheet.isPublic !== false,
+      plan: worksheet.plan || 'Free'
+    }));
+    
+    // Update state with the valid worksheets
+    if (JSON.stringify(validWorksheets) !== JSON.stringify(worksheets)) {
+      setWorksheets(validWorksheets);
+      
+      // Update localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('practicegenius_worksheets', JSON.stringify(validWorksheets));
+        console.log(`Updated ${validWorksheets.length} worksheets in localStorage`);
+      }
+    }
+    
+    console.log('===== END GET ADMIN WORKSHEETS =====');
+    return validWorksheets;
   };
 
   return (

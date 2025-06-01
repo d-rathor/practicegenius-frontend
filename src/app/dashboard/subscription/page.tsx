@@ -12,19 +12,35 @@ export default function SubscriptionPage() {
   const [currentPlan, setCurrentPlan] = useState('free');
 
   useEffect(() => {
-    if (!session) return; // Ensure session is not null
-
-    if ((session.user as any)?.subscriptionPlan) {
-      setCurrentPlan((session.user as any).subscriptionPlan.toLowerCase());
-    } else {
-      // Fallback to localStorage if session is not immediately available or doesn't have plan
-      const subscriptionData = localStorage.getItem('user_subscription');
-      if (subscriptionData) {
-        const subscription = JSON.parse(subscriptionData);
-        if (subscription.plan) {
-          setCurrentPlan(subscription.plan.toLowerCase());
+    if (typeof window === 'undefined') return;
+    
+    try {
+      // First check for NextAuth session data
+      if (session && session.user) {
+        console.log('Subscription page - Using NextAuth session:', session.user);
+        // @ts-ignore - TypeScript doesn't know about the subscriptionPlan property
+        if (session.user.subscriptionPlan) {
+          // Extract just the plan name and convert to lowercase
+          const planName = session.user.subscriptionPlan.split(' ')[0].toLowerCase();
+          console.log('Setting current plan from session:', planName);
+          setCurrentPlan(planName);
+        }
+      } else {
+        // Fall back to localStorage session if NextAuth session is not available
+        const sessionData = localStorage.getItem('practicegenius_session');
+        if (sessionData) {
+          const sessionObj = JSON.parse(sessionData);
+          if (sessionObj.user && sessionObj.user.subscriptionPlan) {
+            console.log('Subscription page - Using localStorage session:', sessionObj.user);
+            // Extract just the plan name (Free, Essential, Premium) and convert to lowercase
+            const planName = sessionObj.user.subscriptionPlan.split(' ')[0].toLowerCase();
+            console.log('Setting current plan from localStorage:', planName);
+            setCurrentPlan(planName);
+          }
         }
       }
+    } catch (error) {
+      console.error('Error parsing session data in subscription page:', error);
     }
   }, [session]);
 

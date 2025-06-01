@@ -1,55 +1,93 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import MainLayout from '@/components/MainLayout';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
+import { useWorksheets } from '@/contexts/WorksheetContext';
 
 interface DownloadItem {
   id: string;
   name: string;
   date: string;
   link: string;
+  worksheetId: string;
 }
 
 export default function DownloadHistoryPage() {
+  const { data: session } = useSession();
+  const { userDownloads, worksheets, downloadWorksheet } = useWorksheets();
   const [downloadHistory, setDownloadHistory] = useState<DownloadItem[]>([]);
+  const [userId, setUserId] = useState<string>('guest');
 
   useEffect(() => {
-    // Simulate fetching download history from localStorage or an API
-    const storedHistory = localStorage.getItem('download_history');
-    if (storedHistory) {
-      setDownloadHistory(JSON.parse(storedHistory));
-    } else {
-      // Mock data if no history is found
-      const mockData: DownloadItem[] = [
-        {
-          id: '1',
-          name: 'Algebra Worksheet - Linear Equations',
-          date: '2023-10-26',
-          link: '/worksheets/algebra-linear-equations.pdf',
-        },
-        {
-          id: '2',
-          name: 'Geometry Practice - Triangles',
-          date: '2023-10-20',
-          link: '/worksheets/geometry-triangles.pdf',
-        },
-        {
-          id: '3',
-          name: 'Calculus Review - Derivatives',
-          date: '2023-10-15',
-          link: '/worksheets/calculus-derivatives.pdf',
-        },
-      ];
-      setDownloadHistory(mockData);
-      localStorage.setItem('download_history', JSON.stringify(mockData));
+    if (typeof window === 'undefined') return;
+    
+    try {
+      // First check for NextAuth session data
+      if (session && session.user) {
+        console.log('History page - Using NextAuth session:', session.user);
+        // Use the email as the user ID if no specific ID is available
+        const userIdValue = session.user.id || session.user.email || 'guest';
+        setUserId(userIdValue);
+      } else {
+        // Fall back to localStorage session if NextAuth session is not available
+        const sessionData = localStorage.getItem('practicegenius_session');
+        if (sessionData) {
+          const sessionObj = JSON.parse(sessionData);
+          if (sessionObj.user) {
+            console.log('History page - Using localStorage session:', sessionObj.user);
+            // Set user ID
+            if (sessionObj.user.id || sessionObj.user.email) {
+              setUserId(sessionObj.user.id || sessionObj.user.email);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error parsing session data in history page:', error);
     }
-  }, []);
+  }, [session]);
+
+  // Process user downloads when userId or userDownloads change
+  useEffect(() => {
+    if (userId === 'guest' || !userDownloads.length) return;
+    
+    // Filter downloads for the current user
+    const currentUserDownloads = userDownloads.filter(download => download.userId === userId);
+    
+    // Map to the format needed for display
+    const formattedDownloads = currentUserDownloads.map(download => {
+      // Find the corresponding worksheet
+      const worksheet = worksheets.find(w => w.id === download.worksheetId);
+      
+      if (!worksheet) return null;
+      
+      return {
+        id: download.worksheetId + '-' + download.downloadedAt,
+        worksheetId: download.worksheetId,
+        name: worksheet.title,
+        date: new Date(download.downloadedAt).toLocaleDateString(),
+        link: worksheet.downloadUrl || `/worksheets/${worksheet.fileName}`
+      };
+    }).filter(Boolean) as DownloadItem[];
+    
+    // Sort by date (newest first)
+    formattedDownloads.sort((a, b) => {
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    });
+    
+    setDownloadHistory(formattedDownloads);
+  }, [userId, userDownloads, worksheets]);
 
   const handleDownloadAgain = (item: DownloadItem) => {
-    alert(`Simulating download of: ${item.name}`);
-    // In a real application, you would trigger the actual download here
-    // window.open(item.link, '_blank');
+    // Trigger the download through the context to increment counter
+    downloadWorksheet(item.worksheetId, userId);
+    
+    // Open the download link
+    if (typeof window !== 'undefined' && item.link) {
+      window.open(item.link, '_blank');
+    }
   };
   return (
     <MainLayout>
