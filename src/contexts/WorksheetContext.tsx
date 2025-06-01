@@ -141,6 +141,11 @@ export const WorksheetProvider: React.FC<WorksheetProviderProps> = ({ children }
 
   // Load worksheets and user downloads from localStorage on initial render
   useEffect(() => {
+    // Only run in browser environment
+    if (typeof window === 'undefined') {
+      return;
+    }
+    
     // Load worksheets
     const storedWorksheets = localStorage.getItem('practicegenius_worksheets');
     if (storedWorksheets) {
@@ -171,7 +176,11 @@ export const WorksheetProvider: React.FC<WorksheetProviderProps> = ({ children }
         w.id === existingWorksheet.id ? existingWorksheet : w
       );
       setWorksheets(updatedWorksheets);
-      localStorage.setItem('practicegenius_worksheets', JSON.stringify(updatedWorksheets));
+      
+      // Only update localStorage in browser environment
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('practicegenius_worksheets', JSON.stringify(updatedWorksheets));
+      }
     } else {
       // This is a new worksheet
       const newWorksheet: Worksheet = {
@@ -190,7 +199,11 @@ export const WorksheetProvider: React.FC<WorksheetProviderProps> = ({ children }
 
       const updatedWorksheets = [...worksheets, newWorksheet];
       setWorksheets(updatedWorksheets);
-      localStorage.setItem('practicegenius_worksheets', JSON.stringify(updatedWorksheets));
+      
+      // Only update localStorage in browser environment
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('practicegenius_worksheets', JSON.stringify(updatedWorksheets));
+      }
     }
   };
 
@@ -198,12 +211,20 @@ export const WorksheetProvider: React.FC<WorksheetProviderProps> = ({ children }
   const deleteWorksheet = (id: string) => {
     const updatedWorksheets = worksheets.filter(worksheet => worksheet.id !== id);
     setWorksheets(updatedWorksheets);
-    localStorage.setItem('practicegenius_worksheets', JSON.stringify(updatedWorksheets));
+    
+    // Only update localStorage in browser environment
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('practicegenius_worksheets', JSON.stringify(updatedWorksheets));
+    }
 
     // Also remove any user downloads for this worksheet
     const updatedUserDownloads = userDownloads.filter(download => download.worksheetId !== id);
     setUserDownloads(updatedUserDownloads);
-    localStorage.setItem('practicegenius_user_downloads', JSON.stringify(updatedUserDownloads));
+    
+    // Only update localStorage in browser environment
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('practicegenius_user_downloads', JSON.stringify(updatedUserDownloads));
+    }
   };
 
   // Track a worksheet download by a user
@@ -223,7 +244,11 @@ export const WorksheetProvider: React.FC<WorksheetProviderProps> = ({ children }
       w.id === worksheetId ? updatedWorksheet : w
     );
     setWorksheets(updatedWorksheets);
-    localStorage.setItem('practicegenius_worksheets', JSON.stringify(updatedWorksheets));
+    
+    // Only update localStorage in browser environment
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('practicegenius_worksheets', JSON.stringify(updatedWorksheets));
+    }
 
     // Add to user downloads if not already downloaded
     const alreadyDownloaded = userDownloads.some(
@@ -239,7 +264,11 @@ export const WorksheetProvider: React.FC<WorksheetProviderProps> = ({ children }
 
       const updatedUserDownloads = [...userDownloads, newDownload];
       setUserDownloads(updatedUserDownloads);
-      localStorage.setItem('practicegenius_user_downloads', JSON.stringify(updatedUserDownloads));
+      
+      // Only update localStorage in browser environment
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('practicegenius_user_downloads', JSON.stringify(updatedUserDownloads));
+      }
     }
   };
 
@@ -268,8 +297,10 @@ export const WorksheetProvider: React.FC<WorksheetProviderProps> = ({ children }
       isPublic: worksheet.isPublic !== false // Default to true if not set
     }));
     
-    // Update the worksheets in localStorage
-    localStorage.setItem('practicegenius_worksheets', JSON.stringify(updatedWorksheets));
+    // Update the worksheets in localStorage only if we're in the browser
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('practicegenius_worksheets', JSON.stringify(updatedWorksheets));
+    }
     
     // Return only admin-uploaded and public worksheets
     return updatedWorksheets.filter(worksheet => 
