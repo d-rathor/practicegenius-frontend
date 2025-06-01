@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import MainLayout from '@/components/MainLayout';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import Image from 'next/image';
@@ -47,7 +47,8 @@ export default function WorksheetsPage() {
           setUserPlan(planName);
         } else {
           // Fall back to localStorage session if NextAuth session is not available
-          const sessionData = localStorage.getItem('practicegenius_session');
+          // Only access localStorage in browser environment
+          const sessionData = typeof window !== 'undefined' ? localStorage.getItem('practicegenius_session') : null;
           if (sessionData) {
             const sessionObj = JSON.parse(sessionData);
             if (sessionObj.user) {

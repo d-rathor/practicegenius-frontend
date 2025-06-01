@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import MainLayout from '@/components/MainLayout';
 import WorksheetFilters from '@/components/worksheets/WorksheetFilters';
 import WorksheetGrid from '@/components/worksheets/WorksheetGrid';
@@ -36,18 +36,24 @@ export default function WorksheetsPage() {
 
           {/* Search and Filters */}
           <div className="mb-8">
-              <WorksheetSearch />
+              <Suspense fallback={<div className="p-4 bg-gray-100 rounded-lg">Loading search...</div>}>
+                <WorksheetSearch />
+              </Suspense>
             </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Filters Sidebar */}
             <div className="lg:col-span-1">
+              <Suspense fallback={<div className="p-4 bg-gray-100 rounded-lg">Loading filters...</div>}>
                 <WorksheetFilters />
-              </div>
+              </Suspense>
+            </div>
 
             {/* Worksheets Grid - Pass only admin worksheets */}
             <div className="lg:col-span-3">
-              <WorksheetGrid adminWorksheets={adminWorksheets} />
+              <Suspense fallback={<div className="p-4 bg-gray-100 rounded-lg">Loading worksheets...</div>}>
+                <WorksheetGrid adminWorksheets={adminWorksheets} />
+              </Suspense>
             </div>
           </div>
         </div>
