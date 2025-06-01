@@ -13,8 +13,8 @@ const DashboardSidebar: React.FC = () => {
   const pathname = usePathname();
   const router = useRouter();
   
-  // Get user data from session
-  useEffect(() => {
+  // Function to load user data from session
+  const loadUserData = () => {
     if (typeof window !== 'undefined') {
       try {
         const sessionData = localStorage.getItem('practicegenius_session');
@@ -24,12 +24,43 @@ const DashboardSidebar: React.FC = () => {
             setUserName(session.user.name || 'User');
             setUserEmail(session.user.email || 'user@example.com');
             setUserPlan(session.user.subscriptionPlan || 'Free Plan');
+            console.log('DashboardSidebar: Loaded user data with plan:', session.user.subscriptionPlan);
           }
         }
       } catch (error) {
         console.error('Error parsing session data:', error);
       }
     }
+  };
+
+  // Get user data from session and listen for updates
+  useEffect(() => {
+    // Load user data immediately
+    loadUserData();
+    
+    // Listen for the custom subscription updated event
+    const handleSubscriptionUpdate = (event: CustomEvent) => {
+      console.log('DashboardSidebar: Subscription update event received:', event.detail);
+      loadUserData();
+    };
+    
+    // Listen for storage changes
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === 'practicegenius_session' || event.key === 'user_subscription') {
+        console.log('DashboardSidebar: Storage changed, updating user data');
+        loadUserData();
+      }
+    };
+    
+    // Add event listeners
+    window.addEventListener('practicegenius_subscription_updated', handleSubscriptionUpdate as EventListener);
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      // Clean up event listeners
+      window.removeEventListener('practicegenius_subscription_updated', handleSubscriptionUpdate as EventListener);
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
   
   // Handle logout

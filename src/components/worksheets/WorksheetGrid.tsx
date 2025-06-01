@@ -64,6 +64,7 @@ const WorksheetGrid: React.FC<WorksheetGridProps> = ({ adminWorksheets }) => {
   
   // Check subscription on mount
   useEffect(() => {
+    // Immediately check subscription plan on mount
     checkSubscriptionPlan();
     
     // Set up storage event listener to detect changes to localStorage
@@ -74,13 +75,21 @@ const WorksheetGrid: React.FC<WorksheetGridProps> = ({ adminWorksheets }) => {
       }
     };
     
-    window.addEventListener('storage', handleStorageChange);
+    // Listen for the custom subscription updated event
+    const handleSubscriptionUpdate = (event: CustomEvent) => {
+      console.log('Subscription update event received:', event.detail);
+      checkSubscriptionPlan();
+    };
     
-    // Check every second for changes (backup method)
-    const intervalId = setInterval(checkSubscriptionPlan, 1000);
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('practicegenius_subscription_updated', handleSubscriptionUpdate as EventListener);
+    
+    // Check every 5 seconds as a backup method (reduced from every 1 second)
+    const intervalId = setInterval(checkSubscriptionPlan, 5000);
     
     return () => {
       window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('practicegenius_subscription_updated', handleSubscriptionUpdate as EventListener);
       clearInterval(intervalId);
     };
   }, []);
@@ -101,6 +110,7 @@ const WorksheetGrid: React.FC<WorksheetGridProps> = ({ adminWorksheets }) => {
 
   // Function to filter worksheets based on user's subscription plan and URL parameters
   const getFilteredWorksheets = () => {
+    console.log('===== WORKSHEET GRID FILTERING =====');
     const worksheetsToFilter = adminWorksheets || worksheets;
     
     // Debug log to see what we're working with
@@ -111,18 +121,35 @@ const WorksheetGrid: React.FC<WorksheetGridProps> = ({ adminWorksheets }) => {
       userPlan: userPlan
     });
     
-    if (!worksheetsToFilter || worksheetsToFilter.length === 0) return [];
+    // Debug each worksheet we're starting with
+    console.log('Initial worksheets to filter:');
+    worksheetsToFilter?.forEach((w, i) => {
+      console.log(`Worksheet ${i+1}:`, {
+        id: w.id,
+        title: w.title,
+        createdBy: w.createdBy,
+        isPublic: w.isPublic,
+        plan: w.plan,
+        subscriptionLevel: w.subscriptionLevel
+      });
+    });
+    
+    if (!worksheetsToFilter || worksheetsToFilter.length === 0) {
+      console.log('No worksheets to filter, returning empty array');
+      return [];
+    }
     
     // First filter for admin worksheets if we're on the public page (adminWorksheets is provided)
     let filteredByAdmin = worksheetsToFilter;
     if (adminWorksheets) {
-      // We're on the public worksheets page, so only show admin worksheets that are public
-      filteredByAdmin = worksheetsToFilter.filter(worksheet => 
-        worksheet.createdBy === 'admin' && worksheet.isPublic === true
-      );
+      console.log('adminWorksheets provided, showing all worksheets');
+      // We're on the public worksheets page
+      // IMPORTANT: Show all worksheets without filtering by createdBy or isPublic
+      // This ensures any worksheet created in the admin interface will appear
+      filteredByAdmin = worksheetsToFilter;
       
-      // Log the filtered admin worksheets
-      console.log('Admin worksheets after filtering:', filteredByAdmin.length);
+      // Log the worksheets
+      console.log('Worksheets for public page:', filteredByAdmin.length);
       filteredByAdmin.forEach(w => console.log(`Worksheet: ${w.title}, Plan: ${w.plan}, Level: ${w.subscriptionLevel}`));
     }
     

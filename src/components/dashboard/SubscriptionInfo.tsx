@@ -14,24 +14,28 @@ const SubscriptionInfo: React.FC = () => {
     price: 0
   });
 
-  // Load subscription data on component mount
-  useEffect(() => {
+  // Function to load subscription data
+  const loadSubscriptionData = () => {
     if (typeof window !== 'undefined') {
       try {
         // Try to get subscription from localStorage
         const subscriptionData = localStorage.getItem('user_subscription');
         const sessionData = localStorage.getItem('practicegenius_session');
         
+        console.log('SubscriptionInfo: Loading subscription data');
+        
         if (subscriptionData) {
           // Use data from user_subscription
           const userSubscription = JSON.parse(subscriptionData);
           const planName = userSubscription.plan;
           
+          console.log('SubscriptionInfo: Found plan in user_subscription:', planName);
+          
           // Set price based on plan
           let price = 0;
-          if (planName === 'essential') {
+          if (planName.toLowerCase().includes('essential')) {
             price = 499;
-          } else if (planName === 'premium') {
+          } else if (planName.toLowerCase().includes('premium')) {
             price = 999;
           }
           
@@ -47,7 +51,8 @@ const SubscriptionInfo: React.FC = () => {
           // Fallback to session data
           const session = JSON.parse(sessionData);
           if (session.user && session.user.subscriptionPlan) {
-            const planName = session.user.subscriptionPlan.toLowerCase();
+            const planName = session.user.subscriptionPlan;
+            console.log('SubscriptionInfo: Found plan in session:', planName);
             
             // Set price based on plan
             let price = 0;
@@ -71,16 +76,36 @@ const SubscriptionInfo: React.FC = () => {
         console.error('Error loading subscription data:', error);
       }
     }
+  };
+
+  // Load subscription data on component mount and listen for updates
+  useEffect(() => {
+    // Load subscription data immediately
+    loadSubscriptionData();
     
-    // Listen for storage changes to update subscription info
+    // Listen for the custom subscription updated event
+    const handleSubscriptionUpdate = (event: CustomEvent) => {
+      console.log('SubscriptionInfo: Subscription update event received:', event.detail);
+      loadSubscriptionData();
+    };
+    
+    // Listen for storage changes
     const handleStorageChange = (event: StorageEvent) => {
-      if (event.key === 'user_subscription' || event.key === 'practicegenius_session' || event.key === 'force_refresh') {
-        window.location.reload();
+      if (event.key === 'practicegenius_session' || event.key === 'user_subscription') {
+        console.log('SubscriptionInfo: Storage changed, updating subscription data');
+        loadSubscriptionData();
       }
     };
     
+    // Add event listeners
+    window.addEventListener('practicegenius_subscription_updated', handleSubscriptionUpdate as EventListener);
     window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    
+    return () => {
+      // Clean up event listeners
+      window.removeEventListener('practicegenius_subscription_updated', handleSubscriptionUpdate as EventListener);
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
   // Function to format date

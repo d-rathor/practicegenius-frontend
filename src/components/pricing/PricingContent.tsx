@@ -4,6 +4,9 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
+// Import syncSubscriptionData from AuthProvider
+import { syncSubscriptionData } from '../../providers/AuthProvider';
+
 // Create a simple CheckIcon component instead of using Heroicons
 const CheckIcon = ({ className }: { className?: string }) => (
   <svg
@@ -24,7 +27,7 @@ const PricingContent: React.FC = () => {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentPlan, setCurrentPlan] = useState<'free' | 'essential' | 'premium'>('free');
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
+  // Monthly billing cycle only
 
   // Helper function to determine the effective current plan based on hierarchy
   const getEffectiveCurrentPlan = (plan: string): 'free' | 'essential' | 'premium' => {
@@ -68,6 +71,7 @@ const PricingContent: React.FC = () => {
 
   // Handle direct subscription upgrade
   const handleSubscribe = (plan: string) => {
+    console.log(`=== SUBSCRIPTION UPGRADE STARTED ===`);
     console.log(`Subscribing to ${plan} plan`);
     
     // If user is not logged in, redirect to cart with plan
@@ -78,35 +82,83 @@ const PricingContent: React.FC = () => {
     
     // If user is logged in, directly update subscription
     try {
-      // Create clean plan name
-      const cleanPlanName = plan.toLowerCase();
+      // Create formatted plan name
+      const formattedPlanName = plan.charAt(0).toUpperCase() + plan.slice(1) + ' Plan';
+      console.log('Formatted plan name:', formattedPlanName);
       
-      // Set user_subscription directly
+      // Get the current user ID from session
+      const sessionData = localStorage.getItem('practicegenius_session');
+      if (!sessionData) {
+        throw new Error('No session found, cannot update subscription');
+      }
+      
+      const sessionObj = JSON.parse(sessionData);
+      if (!sessionObj.user || !sessionObj.user.id) {
+        throw new Error('No user found in session, cannot update subscription');
+      }
+      
+      const userId = sessionObj.user.id;
+      console.log('Updating subscription for user ID:', userId);
+      
+      // DIRECT APPROACH: Update all storage locations manually to ensure consistency
+      
+      // 1. Update user in practicegenius_users array
+      const users = JSON.parse(localStorage.getItem('practicegenius_users') || '[]');
+      const userIndex = users.findIndex((u: any) => u.id === userId);
+      
+      if (userIndex !== -1) {
+        users[userIndex].subscriptionPlan = formattedPlanName;
+        users[userIndex].subscriptionDate = new Date().toISOString();
+        users[userIndex].subscriptionStatus = 'active';
+        localStorage.setItem('practicegenius_users', JSON.stringify(users));
+        console.log(`DIRECT: Updated user in users array with plan: ${formattedPlanName}`);
+      } else {
+        console.error('User not found in users array, cannot update subscription plan');
+      }
+      
+      // 2. Update user_subscription in localStorage
       const subscriptionInfo = {
-        plan: cleanPlanName,
+        plan: plan.toLowerCase(),
         status: 'active',
-        startDate: new Date().toISOString()
+        startDate: new Date().toISOString(),
+        userId: userId
       };
       localStorage.setItem('user_subscription', JSON.stringify(subscriptionInfo));
-      console.log('Set user_subscription directly:', subscriptionInfo);
+      console.log(`DIRECT: Set user_subscription with plan: ${plan.toLowerCase()}`);
       
-      // Update session if it exists
-      const sessionData = localStorage.getItem('practicegenius_session');
-      if (sessionData) {
-        const sessionObj = JSON.parse(sessionData);
+      // 3. Update session data
+      sessionObj.user.subscriptionPlan = formattedPlanName;
+      sessionObj.user.subscriptionDate = new Date().toISOString();
+      sessionObj.user.subscriptionStatus = 'active';
+      localStorage.setItem('practicegenius_session', JSON.stringify(sessionObj));
+      console.log(`DIRECT: Updated session with plan: ${formattedPlanName}`);
+      
+      // 4. Also use the syncSubscriptionData helper as a backup
+      syncSubscriptionData(userId, formattedPlanName);
+      
+      // 5. Verify all storage locations have been updated
+      try {
+        const verifyUsers = JSON.parse(localStorage.getItem('practicegenius_users') || '[]');
+        const verifyUser = verifyUsers.find((u: any) => u.id === userId);
+        const verifySession = JSON.parse(localStorage.getItem('practicegenius_session') || '{}');
+        const verifySubscription = JSON.parse(localStorage.getItem('user_subscription') || '{}');
         
-        if (sessionObj.user) {
-          sessionObj.user.subscriptionPlan = cleanPlanName;
-          sessionObj.user.subscriptionDate = new Date().toISOString();
-          sessionObj.user.subscriptionStatus = 'active';
-          
-          localStorage.setItem('practicegenius_session', JSON.stringify(sessionObj));
-          console.log('Updated session with new plan:', cleanPlanName);
-        }
+        console.log('VERIFICATION AFTER SUBSCRIPTION UPDATE:');
+        console.log(`- User in users array: ${verifyUser?.subscriptionPlan || 'Not found'}`);
+        console.log(`- User in session: ${verifySession?.user?.subscriptionPlan || 'Not found'}`);
+        console.log(`- User subscription: ${verifySubscription?.plan || 'Not found'}`);
+      } catch (verifyError) {
+        console.error('Error during verification:', verifyError);
       }
+      
+      // Update the current plan state in the component
+      // This ensures the UI reflects the new plan immediately
+      setCurrentPlan(plan.toLowerCase() as "free" | "essential" | "premium");
       
       // Force refresh to update UI
       localStorage.setItem('force_refresh', Date.now().toString());
+      
+      console.log(`=== SUBSCRIPTION UPGRADE COMPLETED ===`);
       
       // Show success message and redirect to worksheets
       alert(`Successfully upgraded to ${plan} plan! You now have access to ${plan === 'premium' ? 'all' : plan} worksheets.`);
@@ -141,8 +193,8 @@ const PricingContent: React.FC = () => {
     },
     {
       name: 'Essential',
-      price: billingCycle === 'monthly' ? '₹499' : '₹4,788',
-      period: billingCycle === 'monthly' ? 'per month' : 'per year',
+      price: '₹499',
+      period: 'per month',
       description: 'Perfect for regular learning needs',
       features: [
         'Access to all Essential worksheets (Grades 1-5)',
@@ -162,8 +214,8 @@ const PricingContent: React.FC = () => {
     },
     {
       name: 'Premium',
-      price: billingCycle === 'monthly' ? '₹999' : '₹9,588',
-      period: billingCycle === 'monthly' ? 'per month' : 'per year',
+      price: '₹999',
+      period: 'per month',
       description: 'Complete access to all resources',
       features: [
         'Access to ALL worksheets (Grades 1-5)',
@@ -194,23 +246,7 @@ const PricingContent: React.FC = () => {
           </p>
         </div>
 
-        {/* Pricing Toggle (Monthly/Annual) */}
-        <div className="flex justify-center mb-12">
-          <div className="bg-white rounded-full p-1 inline-flex shadow-sm">
-            <button 
-              className={`px-6 py-2 rounded-full ${billingCycle === 'monthly' ? 'bg-primary text-white' : 'text-gray-700'} font-medium`}
-              onClick={() => setBillingCycle('monthly')}
-            >
-              Monthly
-            </button>
-            <button 
-              className={`px-6 py-2 rounded-full ${billingCycle === 'annual' ? 'bg-primary text-white' : 'text-gray-700'} font-medium`}
-              onClick={() => setBillingCycle('annual')}
-            >
-              Annual (Save 20%)
-            </button>
-          </div>
-        </div>
+        {/* Monthly pricing only */}
 
         {/* Pricing Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
@@ -334,29 +370,7 @@ const PricingContent: React.FC = () => {
           </div>
         </div>
 
-        {/* CTA Section */}
-        <div className="mt-16 text-center bg-primary text-white rounded-xl p-8 md:p-12 max-w-5xl mx-auto">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4">
-            Ready to Get Started?
-          </h2>
-          <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
-            Join thousands of parents and teachers who trust PracticeGenius for quality educational worksheets.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link 
-              href="/register" 
-              className="btn bg-white text-primary hover:bg-gray-100 text-lg px-8 py-3"
-            >
-              Create Free Account
-            </Link>
-            <Link 
-              href="/contact" 
-              className="btn border-2 border-white text-white hover:bg-white hover:text-primary text-lg px-8 py-3"
-            >
-              Contact Sales
-            </Link>
-          </div>
-        </div>
+        {/* CTA Section removed */}
       </div>
     </div>
   );
