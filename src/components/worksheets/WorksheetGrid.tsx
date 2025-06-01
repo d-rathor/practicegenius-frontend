@@ -297,22 +297,43 @@ const WorksheetGrid: React.FC<WorksheetGridProps> = ({ adminWorksheets }) => {
       return;
     }
     
-    // Check if user has appropriate subscription for this worksheet
-    const worksheetPlan = (worksheet.plan || worksheet.subscriptionLevel || 'free').toLowerCase();
-    const userPlanLevel = userSubscriptionPlan.toLowerCase();
+    // Normalize subscription plan names for consistent comparison
+    const normalizeSubscriptionPlan = (plan: string): string => {
+      const planLower = (plan || '').toLowerCase().trim();
+      if (planLower.includes('premium')) return 'premium';
+      if (planLower.includes('essential')) return 'essential';
+      return 'free';
+    };
+
+    // Get normalized plan names
+    const worksheetPlanNormalized = normalizeSubscriptionPlan(worksheet.plan || worksheet.subscriptionLevel || 'free');
+    const userPlanLevelNormalized = normalizeSubscriptionPlan(userSubscriptionPlan);
     
     console.log('Download attempt:', {
       worksheetTitle: worksheet.title,
-      worksheetPlan: worksheetPlan,
-      userPlan: userPlanLevel
+      worksheetPlan: worksheetPlanNormalized,
+      userPlan: userPlanLevelNormalized,
+      originalWorksheetPlan: worksheet.plan || worksheet.subscriptionLevel,
+      originalUserPlan: userSubscriptionPlan
     });
     
-    // Verify user has access to this worksheet
-    if (
-      (worksheetPlan === 'premium' && userPlanLevel !== 'premium') ||
-      (worksheetPlan === 'essential' && userPlanLevel !== 'essential' && userPlanLevel !== 'premium')
-    ) {
-      alert(`You need a ${worksheetPlan.charAt(0).toUpperCase() + worksheetPlan.slice(1)} subscription to download this worksheet. Please upgrade your plan.`);
+    // Define plan hierarchy for access control
+    const planHierarchy = {
+      'premium': ['premium', 'essential', 'free'],  // Premium users can access all
+      'essential': ['essential', 'free'],           // Essential users can access essential and free
+      'free': ['free']                              // Free users can only access free
+    };
+    
+    // Check if user has access based on plan hierarchy
+    const hasAccess = planHierarchy[userPlanLevelNormalized]?.includes(worksheetPlanNormalized) || false;
+    
+    if (hasAccess) {
+      // User has access, continue with download
+      console.log(`User with ${userPlanLevelNormalized} plan has access to ${worksheetPlanNormalized} worksheet`);
+    } else {
+      // User doesn't have access
+      const displayPlan = worksheetPlanNormalized.charAt(0).toUpperCase() + worksheetPlanNormalized.slice(1);
+      alert(`You need a ${displayPlan} subscription to download this worksheet. Please upgrade your plan.`);
       return;
     }
     
