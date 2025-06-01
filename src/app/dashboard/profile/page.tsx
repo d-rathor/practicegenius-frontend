@@ -49,28 +49,30 @@ export default function ProfilePage() {
 
     try {
       // Simulate API call to update user data
-      const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
-      const updatedUsers = existingUsers.map((user: any) => {
-        if (user.email === formData.email) {
-          return {
-            ...user,
-            name: formData.name,
-            country: formData.country,
-            // In a real app, you'd hash the password on the server
-            password: formData.newPassword ? formData.newPassword : user.password
-          };
-        }
-        return user;
-      });
-      localStorage.setItem('users', JSON.stringify(updatedUsers));
+      if (typeof window !== 'undefined') {
+        const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
+        const updatedUsers = existingUsers.map((user: any) => {
+          if (user.email === formData.email) {
+            return {
+              ...user,
+              name: formData.name,
+              country: formData.country,
+              // In a real app, you'd hash the password on the server
+              password: formData.newPassword ? formData.newPassword : user.password
+            };
+          }
+          return user;
+        });
+        localStorage.setItem('users', JSON.stringify(updatedUsers));
 
-      // Update session in localStorage (practicegenius_session)
-      const sessionData = JSON.parse(localStorage.getItem('practicegenius_session') || '{}');
-      if (sessionData.user) {
-        sessionData.user.name = formData.name;
-        sessionData.user.country = formData.country;
-        // Password update is handled by login flow, not directly in session object
-        localStorage.setItem('practicegenius_session', JSON.stringify(sessionData));
+        // Update session in localStorage (practicegenius_session)
+        const sessionData = JSON.parse(localStorage.getItem('practicegenius_session') || '{}');
+        if (sessionData.user) {
+          sessionData.user.name = formData.name;
+          sessionData.user.country = formData.country;
+          // Password update is handled by login flow, not directly in session object
+          localStorage.setItem('practicegenius_session', JSON.stringify(sessionData));
+        }
       }
 
       // Update the NextAuth session (if applicable)

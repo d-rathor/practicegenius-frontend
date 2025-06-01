@@ -19,6 +19,13 @@
   status = 301
   force = true
 
+# Redirect /profile to /dashboard/profile
+[[redirects]]
+  from = "/profile"
+  to = "/dashboard/profile"
+  status = 301
+  force = true
+
 # Cache static assets for 1 year
 [[headers]]
   for = "/_next/static/*"
