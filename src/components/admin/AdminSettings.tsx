@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const AdminSettings: React.FC = () => {
   // State for general settings
@@ -26,9 +26,52 @@ const AdminSettings: React.FC = () => {
   const [premiumPlanPrice, setPremiumPlanPrice] = useState('399');
   const [trialDays, setTrialDays] = useState('7');
 
+  // Load subscription settings from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const savedSettings = localStorage.getItem('admin_subscription_settings');
+        if (savedSettings) {
+          const settings = JSON.parse(savedSettings);
+          if (settings.essentialPlanPrice) setEssentialPlanPrice(settings.essentialPlanPrice);
+          if (settings.premiumPlanPrice) setPremiumPlanPrice(settings.premiumPlanPrice);
+          if (settings.trialDays) setTrialDays(settings.trialDays);
+        }
+      } catch (error) {
+        console.error('Error loading subscription settings:', error);
+      }
+    }
+  }, []);
+
   // Handle form submission
   const handleSubmit = (e: React.FormEvent, section: string) => {
     e.preventDefault();
+    
+    // Save specific settings based on section
+    if (section === 'Subscription') {
+      try {
+        // Save subscription settings to localStorage
+        const subscriptionSettings = {
+          essentialPlanPrice,
+          premiumPlanPrice,
+          trialDays,
+          lastUpdated: new Date().toISOString()
+        };
+        localStorage.setItem('admin_subscription_settings', JSON.stringify(subscriptionSettings));
+        
+        // Update pricing in localStorage for the pricing page
+        const pricingData = {
+          essential: parseInt(essentialPlanPrice),
+          premium: parseInt(premiumPlanPrice),
+          trialDays: parseInt(trialDays),
+          lastUpdated: new Date().toISOString()
+        };
+        localStorage.setItem('pricing_data', JSON.stringify(pricingData));
+      } catch (error) {
+        console.error('Error saving subscription settings:', error);
+      }
+    }
+    
     // In a real application, this would send the data to the backend
     alert(`${section} settings saved successfully!`);
   };

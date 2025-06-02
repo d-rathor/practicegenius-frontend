@@ -192,6 +192,22 @@ export default function RegisterPage() {
         users.push(newUser);
         localStorage.setItem('practicegenius_users', JSON.stringify(users));
         
+        // Also save to admin_users for admin dashboard
+        const adminUsers = JSON.parse(localStorage.getItem('admin_users') || '[]');
+        
+        // Format user for admin dashboard
+        const adminUser = {
+          id: newUser.id,
+          name: newUser.username,
+          email: newUser.email,
+          avatarUrl: '/avatars/default-avatar.jpg',
+          subscriptionPlan: newUser.subscriptionPlan || 'free',
+          registeredAt: newUser.createdAt
+        };
+        
+        adminUsers.push(adminUser);
+        localStorage.setItem('admin_users', JSON.stringify(adminUsers));
+        
         // Create session
         const mockSession = {
           user: {

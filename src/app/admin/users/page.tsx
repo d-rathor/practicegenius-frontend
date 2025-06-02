@@ -11,6 +11,7 @@ export default function AdminUsersPage() {
             <AdminSidebar />
           </div>
           <div className="lg:col-span-3">
+            {/* Main content */}
             <UserManager />
           </div>
         </div>

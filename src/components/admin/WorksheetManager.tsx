@@ -36,8 +36,10 @@ const WorksheetManager: React.FC = () => {
   };
 
   // Function to get subscription level badge color
-  const getSubscriptionBadgeColor = (level: string) => {
-    switch (level) {
+  const getSubscriptionBadgeColor = (level?: string) => {
+    if (!level) return 'bg-gray-100 text-gray-800';
+    
+    switch (level.toLowerCase()) {
       case 'free':
         return 'bg-gray-100 text-gray-800';
       case 'essential':
@@ -49,8 +51,18 @@ const WorksheetManager: React.FC = () => {
     }
   };
 
+  // Remove duplicate worksheets by ID
+  const uniqueWorksheets = worksheets.reduce((acc: Worksheet[], current) => {
+    const x = acc.find(item => item.id === current.id);
+    if (!x) {
+      return acc.concat([current]);
+    } else {
+      return acc;
+    }
+  }, []);
+
   // Filter worksheets based on search term and filters
-  const filteredWorksheets = worksheets.filter((worksheet) => {
+  const filteredWorksheets = uniqueWorksheets.filter((worksheet) => {
     const matchesSearch = worksheet.title.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesSubject = filterSubject ? worksheet.subject === filterSubject : true;
     const matchesGrade = filterGrade ? worksheet.grade === parseInt(filterGrade) : true;
@@ -191,9 +203,15 @@ const WorksheetManager: React.FC = () => {
                     <span className="ml-2 text-sm text-gray-500">Grade {worksheet.grade}</span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getSubscriptionBadgeColor(worksheet.subscriptionLevel)}`}>
-                      {worksheet.subscriptionLevel.charAt(0).toUpperCase() + worksheet.subscriptionLevel.slice(1)}
-                    </span>
+                    {worksheet.subscriptionLevel ? (
+                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${getSubscriptionBadgeColor(worksheet.subscriptionLevel)}`}>
+                        {worksheet.subscriptionLevel.charAt(0).toUpperCase() + worksheet.subscriptionLevel.slice(1)}
+                      </span>
+                    ) : (
+                      <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">
+                        Free
+                      </span>
+                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {worksheet.downloadCount}

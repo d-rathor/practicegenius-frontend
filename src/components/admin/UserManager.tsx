@@ -76,12 +76,60 @@ const UserManager: React.FC = () => {
     }
   ];
 
-  const [users, setUsers] = useState<User[]>(initialUsers);
+  const [users, setUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterSubscription, setFilterSubscription] = useState<string>('');
   const [filterStatus, setFilterStatus] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('registeredAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  
+  // Load users from localStorage on component mount
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // Use only the primary key for users to avoid duplicates
+      const primaryKey = 'admin_users';
+      
+      try {
+        const data = localStorage.getItem(primaryKey);
+        if (data) {
+          const parsedData = JSON.parse(data);
+          if (Array.isArray(parsedData) && parsedData.length > 0) {
+            console.log(`Found ${parsedData.length} users in ${primaryKey}`);
+            
+            // Ensure all users have required fields
+            const validUsers = parsedData.map(user => ({
+              id: user.id || `user_${Math.random().toString(36).substr(2, 9)}`,
+              name: user.name || user.fullName || 'Unknown User',
+              email: user.email || 'unknown@example.com',
+              avatarUrl: user.avatarUrl || '/avatars/default.jpg',
+              subscriptionPlan: user.subscriptionPlan || user.plan || 'free',
+              registeredAt: user.registeredAt || user.createdAt || new Date().toISOString(),
+              lastLogin: user.lastLogin || user.lastActive || new Date().toISOString(),
+              status: user.status || 'active',
+              worksheetDownloads: user.worksheetDownloads || 0
+            }));
+            
+            setUsers(validUsers);
+            console.log(`Loaded ${validUsers.length} users from localStorage`);
+          } else {
+            // If no valid data, use initial mock data
+            setUsers(initialUsers);
+            console.log('No valid users found in localStorage, using initial data');
+            localStorage.setItem(primaryKey, JSON.stringify(initialUsers));
+          }
+        } else {
+          // If no data found, use initial mock data
+          setUsers(initialUsers);
+          console.log('No users found in localStorage, using initial data');
+          localStorage.setItem(primaryKey, JSON.stringify(initialUsers));
+        }
+      } catch (e) {
+        console.error(`Error parsing user data:`, e);
+        setUsers(initialUsers);
+        localStorage.setItem(primaryKey, JSON.stringify(initialUsers));
+      }
+    }
+  }, []);
 
   // Function to format date
   const formatDate = (dateString: string) => {

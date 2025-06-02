@@ -116,14 +116,35 @@ const PricingContent: React.FC = () => {
         console.error('User not found in users array, cannot update subscription plan');
       }
       
-      // 2. Update user_subscription in localStorage
-      const subscriptionInfo = {
+      // Get the current pricing from localStorage or use defaults
+      let essentialPrice = 499;
+      let premiumPrice = 999;
+      try {
+        const storedPricingData = localStorage.getItem('pricing_data');
+        if (storedPricingData) {
+          const parsedData = JSON.parse(storedPricingData);
+          essentialPrice = parsedData.essential || essentialPrice;
+          premiumPrice = parsedData.premium || premiumPrice;
+        }
+      } catch (error) {
+        console.error('Error reading pricing data:', error);
+      }
+      
+      // Create a new subscription record
+      const newSubscription = {
+        id: `sub_${Date.now()}`,
+        userId: userId,
+        userName: sessionObj.user.name,
+        userEmail: sessionObj.user.email,
         plan: plan.toLowerCase(),
-        status: 'active',
         startDate: new Date().toISOString(),
-        userId: userId
+        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
+        status: 'active',
+        amount: plan.toLowerCase() === 'premium' ? premiumPrice : essentialPrice
       };
-      localStorage.setItem('user_subscription', JSON.stringify(subscriptionInfo));
+      
+      // 2. Update user_subscription in localStorage
+      localStorage.setItem('user_subscription', JSON.stringify(newSubscription));
       console.log(`DIRECT: Set user_subscription with plan: ${plan.toLowerCase()}`);
       
       // 3. Update session data
@@ -169,6 +190,32 @@ const PricingContent: React.FC = () => {
     }
   };
 
+  // State for pricing data
+  const [pricingData, setPricingData] = useState({
+    essential: 499,
+    premium: 999,
+    trialDays: 7
+  });
+
+  // Load pricing data from localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const storedPricingData = localStorage.getItem('pricing_data');
+        if (storedPricingData) {
+          const parsedData = JSON.parse(storedPricingData);
+          setPricingData({
+            essential: parsedData.essential || 499,
+            premium: parsedData.premium || 999,
+            trialDays: parsedData.trialDays || 7
+          });
+        }
+      } catch (error) {
+        console.error('Error loading pricing data:', error);
+      }
+    }
+  }, []);
+
   const plans = [
     {
       name: 'Free',
@@ -193,7 +240,7 @@ const PricingContent: React.FC = () => {
     },
     {
       name: 'Essential',
-      price: '₹499',
+      price: `₹${pricingData.essential}`,
       period: 'per month',
       description: 'Perfect for regular learning needs',
       features: [
@@ -201,6 +248,7 @@ const PricingContent: React.FC = () => {
         'Unlimited downloads',
         'Monthly new worksheets',
         'Email support',
+        `${pricingData.trialDays}-day free trial`,
         'Cancel anytime'
       ],
       limitations: [
@@ -214,7 +262,7 @@ const PricingContent: React.FC = () => {
     },
     {
       name: 'Premium',
-      price: '₹999',
+      price: `₹${pricingData.premium}`,
       period: 'per month',
       description: 'Complete access to all resources',
       features: [
@@ -222,6 +270,7 @@ const PricingContent: React.FC = () => {
         'Unlimited downloads',
         'Priority access to new worksheets',
         'Premium support',
+        `${pricingData.trialDays}-day free trial`,
         'Cancel anytime'
       ],
       limitations: [],

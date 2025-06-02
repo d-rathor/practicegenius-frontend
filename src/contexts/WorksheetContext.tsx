@@ -149,19 +149,52 @@ export const WorksheetProvider: React.FC<WorksheetProviderProps> = ({ children }
     
     console.log('INITIALIZING WORKSHEET CONTEXT');
     
-    // Load worksheets from localStorage
+    // Load worksheets from both localStorage keys and deduplicate
     try {
-      const storedWorksheets = localStorage.getItem('practicegenius_worksheets');
+      // Check both localStorage keys
+      const storedWorksheets1 = localStorage.getItem('practicegenius_worksheets');
+      const storedWorksheets2 = localStorage.getItem('worksheets');
+      
+      let worksheetsFromKey1: Worksheet[] = [];
+      let worksheetsFromKey2: Worksheet[] = [];
+      
+      // Parse worksheets from first key
+      if (storedWorksheets1) {
+        try {
+          worksheetsFromKey1 = JSON.parse(storedWorksheets1);
+          console.log(`Found ${worksheetsFromKey1.length} worksheets in 'practicegenius_worksheets'`);
+        } catch (e) {
+          console.error('Error parsing practicegenius_worksheets:', e);
+        }
+      }
+      
+      // Parse worksheets from second key
+      if (storedWorksheets2) {
+        try {
+          worksheetsFromKey2 = JSON.parse(storedWorksheets2);
+          console.log(`Found ${worksheetsFromKey2.length} worksheets in 'worksheets'`);
+        } catch (e) {
+          console.error('Error parsing worksheets:', e);
+        }
+      }
+      
+      // Combine worksheets from both keys
+      let allWorksheets = [...worksheetsFromKey1, ...worksheetsFromKey2];
+      
+      // Deduplicate worksheets by ID
       let worksheetsToUse: Worksheet[] = [];
       
-      if (storedWorksheets) {
-        try {
-          worksheetsToUse = JSON.parse(storedWorksheets);
-          console.log(`Found ${worksheetsToUse.length} worksheets in localStorage`);
-        } catch (e) {
-          console.error('Error parsing stored worksheets, using initial worksheets:', e);
-          worksheetsToUse = initialWorksheets;
-        }
+      if (allWorksheets.length > 0) {
+        // Use a Map to deduplicate by ID
+        const worksheetMap = new Map();
+        allWorksheets.forEach(worksheet => {
+          if (!worksheetMap.has(worksheet.id)) {
+            worksheetMap.set(worksheet.id, worksheet);
+          }
+        });
+        
+        worksheetsToUse = Array.from(worksheetMap.values());
+        console.log(`After deduplication: ${worksheetsToUse.length} unique worksheets`);
       } else {
         console.log('No worksheets found in localStorage, using initial worksheets');
         worksheetsToUse = initialWorksheets;
@@ -179,9 +212,10 @@ export const WorksheetProvider: React.FC<WorksheetProviderProps> = ({ children }
       // Update state
       setWorksheets(validWorksheets);
       
-      // Save back to localStorage to ensure consistency
+      // Save back to both localStorage keys to ensure consistency
       localStorage.setItem('practicegenius_worksheets', JSON.stringify(validWorksheets));
-      console.log(`Saved ${validWorksheets.length} worksheets to localStorage`);
+      localStorage.setItem('worksheets', JSON.stringify(validWorksheets));
+      console.log(`Saved ${validWorksheets.length} unique worksheets to both localStorage keys`);
       
       // Load user downloads
       const storedUserDownloads = localStorage.getItem('practicegenius_user_downloads');
@@ -294,10 +328,11 @@ export const WorksheetProvider: React.FC<WorksheetProviderProps> = ({ children }
           ? currentWorksheets.map(w => w.id === updatedWorksheet.id ? updatedWorksheet : w)
           : [...currentWorksheets, updatedWorksheet];
         
-        // Update state and localStorage
+        // Update state and both localStorage keys
         setWorksheets(updatedWorksheets);
         localStorage.setItem('practicegenius_worksheets', JSON.stringify(updatedWorksheets));
-        console.log(`Updated worksheet saved. Total count: ${updatedWorksheets.length}`);
+        localStorage.setItem('worksheets', JSON.stringify(updatedWorksheets));
+        console.log(`Updated worksheet saved to both localStorage keys. Total count: ${updatedWorksheets.length}`);
       } else {
         console.log('Creating new worksheet');
         // This is a new worksheet
@@ -326,11 +361,12 @@ export const WorksheetProvider: React.FC<WorksheetProviderProps> = ({ children }
         // Add the new worksheet to the current worksheets
         const updatedWorksheets = [...currentWorksheets, newWorksheet];
         
-        // Update state and localStorage
+        // Update state and both localStorage keys
         setWorksheets(updatedWorksheets);
         localStorage.setItem('practicegenius_worksheets', JSON.stringify(updatedWorksheets));
+        localStorage.setItem('worksheets', JSON.stringify(updatedWorksheets));
         
-        console.log(`New worksheet added to localStorage. Total count: ${updatedWorksheets.length}`);
+        console.log(`New worksheet added to both localStorage keys. Total count: ${updatedWorksheets.length}`);
       }
     } catch (e) {
       console.error('Error adding worksheet:', e);

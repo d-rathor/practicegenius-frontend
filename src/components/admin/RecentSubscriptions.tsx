@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 interface Subscription {
@@ -15,49 +15,74 @@ interface Subscription {
 }
 
 const RecentSubscriptions: React.FC = () => {
-  // Mock data for recent subscriptions
-  const subscriptions: Subscription[] = [
-    {
-      id: '1',
-      userName: 'Priya Sharma',
-      userEmail: 'priya.sharma@example.com',
-      plan: 'premium',
-      startDate: '2025-05-01T00:00:00',
-      endDate: '2025-06-01T00:00:00',
-      status: 'active',
-      amount: 399
-    },
-    {
-      id: '2',
-      userName: 'Rahul Kumar',
-      userEmail: 'rahul.kumar@example.com',
-      plan: 'essential',
-      startDate: '2025-04-15T00:00:00',
-      endDate: '2025-05-15T00:00:00',
-      status: 'active',
-      amount: 199
-    },
-    {
-      id: '3',
-      userName: 'Vikram Singh',
-      userEmail: 'vikram.singh@example.com',
-      plan: 'premium',
-      startDate: '2025-04-10T00:00:00',
-      endDate: '2025-05-10T00:00:00',
-      status: 'active',
-      amount: 399
-    },
-    {
-      id: '4',
-      userName: 'Meera Patel',
-      userEmail: 'meera.patel@example.com',
-      plan: 'essential',
-      startDate: '2025-04-05T00:00:00',
-      endDate: '2025-05-05T00:00:00',
-      status: 'expired',
-      amount: 199
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        // Only use the primary key for subscriptions
+        const subscriptionsData = localStorage.getItem('admin_subscriptions');
+        if (subscriptionsData) {
+          const allSubscriptions = JSON.parse(subscriptionsData);
+          console.log(`RecentSubscriptions: Found ${allSubscriptions.length} subscriptions in admin_subscriptions key`);
+          
+          // Sort subscriptions by start date (newest first)
+          const sortedSubscriptions = [...allSubscriptions].sort((a, b) => {
+            const dateA = a.startDate || '';
+            const dateB = b.startDate || '';
+            return new Date(dateB).getTime() - new Date(dateA).getTime();
+          });
+          
+          // Get only the 5 most recent subscriptions
+          const recentSubscriptions = sortedSubscriptions.slice(0, 5);
+          
+          // Ensure correct types
+          const typedSubscriptions = recentSubscriptions.map(sub => ({
+            ...sub,
+            plan: (['essential', 'premium'].includes(sub.plan?.toLowerCase()) 
+              ? sub.plan.toLowerCase() 
+              : 'essential') as 'essential' | 'premium',
+            status: (['active', 'expired', 'cancelled'].includes(sub.status?.toLowerCase()) 
+              ? sub.status.toLowerCase() 
+              : 'active') as 'active' | 'expired' | 'cancelled'
+          }));
+          
+          setSubscriptions(typedSubscriptions as Subscription[]);
+        } else {
+          console.log('RecentSubscriptions: No subscriptions found in admin_subscriptions key');
+          // If no subscriptions found in localStorage, create some sample data
+          const sampleSubscriptions: Subscription[] = [
+            {
+              id: '1',
+              userName: 'Priya Sharma',
+              userEmail: 'priya.sharma@example.com',
+              plan: 'premium',
+              startDate: '2025-05-01T00:00:00',
+              endDate: '2025-06-01T00:00:00',
+              status: 'active',
+              amount: 399
+            },
+            {
+              id: '2',
+              userName: 'Rahul Kumar',
+              userEmail: 'rahul.kumar@example.com',
+              plan: 'essential',
+              startDate: '2025-04-15T00:00:00',
+              endDate: '2025-05-15T00:00:00',
+              status: 'active',
+              amount: 199
+            }
+          ];
+          
+          // Save sample data to localStorage for future use
+          localStorage.setItem('admin_subscriptions', JSON.stringify(sampleSubscriptions));
+          setSubscriptions(sampleSubscriptions);
+        }
+      } catch (error) {
+        console.error('Error fetching recent subscriptions:', error);
+      }
     }
-  ];
+  }, []);
 
   // Function to format date
   const formatDate = (dateString: string) => {

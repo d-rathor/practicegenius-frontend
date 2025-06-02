@@ -5,6 +5,8 @@ import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminStats from '@/components/admin/AdminStats';
 import RecentUsers from '@/components/admin/RecentUsers';
 import RecentSubscriptions from '@/components/admin/RecentSubscriptions';
+import RecentWorksheets from '@/components/admin/RecentWorksheets';
+import FixDuplicateWorksheets from '@/components/admin/FixDuplicateWorksheets';
 
 export default function AdminDashboardPage() {
   return (
@@ -35,6 +37,9 @@ export default function AdminDashboardPage() {
                 <RecentUsers />
                 <RecentSubscriptions />
               </div>
+
+              {/* Recent Worksheets */}
+              <RecentWorksheets />
 
               {/* Quick Actions */}
               <div className="bg-white rounded-xl shadow-sm p-6">
@@ -78,91 +83,17 @@ export default function AdminDashboardPage() {
                     View All
                   </Link>
                 </div>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Title
-                        </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Grade/Subject
-                        </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Plan
-                        </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Downloads
-                        </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Date Added
-                        </th>
-                        <th scope="col" className="relative px-6 py-3">
-                          <span className="sr-only">Actions</span>
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      <tr>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">Addition and Subtraction</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">Grade 1 / Math</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                            Free
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          1,250
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          May 1, 2025
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <Link href="/admin/worksheets/1/edit" className="text-primary hover:text-primary-dark mr-3">
-                            Edit
-                          </Link>
-                          <button className="text-red-600 hover:text-red-900">
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">Solar System</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">Grade 4 / Science</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
-                            Premium
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          1,820
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          May 5, 2025
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <Link href="/admin/worksheets/5/edit" className="text-primary hover:text-primary-dark mr-3">
-                            Edit
-                          </Link>
-                          <button className="text-red-600 hover:text-red-900">
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
+                <RecentWorksheets />
+              </div>
+              
+              {/* Fix Duplicate Worksheets */}
+              <div className="mt-6">
+                <FixDuplicateWorksheets />
               </div>
             </div>
           </div>
+          
+          {/* End of admin dashboard content */}
         </div>
       </div>
     </MainLayout>

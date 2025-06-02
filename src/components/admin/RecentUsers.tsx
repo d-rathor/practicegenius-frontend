@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -14,41 +14,69 @@ interface User {
 }
 
 const RecentUsers: React.FC = () => {
-  // Mock data for recent users
-  const users: User[] = [
-    {
-      id: '1',
-      name: 'Priya Sharma',
-      email: 'priya.sharma@example.com',
-      avatarUrl: '/avatars/user1.jpg',
-      subscriptionPlan: 'premium',
-      registeredAt: '2025-05-08T14:30:00'
-    },
-    {
-      id: '2',
-      name: 'Rahul Kumar',
-      email: 'rahul.kumar@example.com',
-      avatarUrl: '/avatars/user2.jpg',
-      subscriptionPlan: 'essential',
-      registeredAt: '2025-05-07T09:15:00'
-    },
-    {
-      id: '3',
-      name: 'Anita Patel',
-      email: 'anita.patel@example.com',
-      avatarUrl: '/avatars/user3.jpg',
-      subscriptionPlan: 'free',
-      registeredAt: '2025-05-05T16:45:00'
-    },
-    {
-      id: '4',
-      name: 'Vikram Singh',
-      email: 'vikram.singh@example.com',
-      avatarUrl: '/avatars/user4.jpg',
-      subscriptionPlan: 'premium',
-      registeredAt: '2025-05-04T11:20:00'
+  const [users, setUsers] = useState<User[]>([]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        // Only use the primary key for users
+        const usersData = localStorage.getItem('admin_users');
+        if (usersData) {
+          const allUsers = JSON.parse(usersData);
+          console.log(`RecentUsers: Found ${allUsers.length} users in admin_users key`);
+          
+          // Sort users by registration date (newest first)
+          const sortedUsers = [...allUsers].sort((a, b) => {
+            const dateA = a.registeredAt || a.createdAt || '';
+            const dateB = b.registeredAt || b.createdAt || '';
+            return new Date(dateB).getTime() - new Date(dateA).getTime();
+          });
+          
+          // Get only the 5 most recent users
+          const recentUsers = sortedUsers.slice(0, 5);
+          
+          // Set default avatar if not present and ensure correct subscription plan type
+          const usersWithAvatars = recentUsers.map(user => ({
+            ...user,
+            avatarUrl: user.avatarUrl || `/avatars/default-avatar.jpg`,
+            // Ensure subscriptionPlan is one of the allowed values
+            subscriptionPlan: (['free', 'essential', 'premium'].includes(user.subscriptionPlan?.toLowerCase()) 
+              ? user.subscriptionPlan.toLowerCase() 
+              : 'free') as 'free' | 'essential' | 'premium'
+          }));
+          
+          setUsers(usersWithAvatars as User[]);
+        } else {
+          console.log('RecentUsers: No users found in admin_users key');
+          // If no users found in localStorage, create some sample data
+          const sampleUsers: User[] = [
+            {
+              id: '1',
+              name: 'Priya Sharma',
+              email: 'priya.sharma@example.com',
+              avatarUrl: '/avatars/user1.jpg',
+              subscriptionPlan: 'premium',
+              registeredAt: '2025-05-08T14:30:00'
+            },
+            {
+              id: '2',
+              name: 'Rahul Kumar',
+              email: 'rahul.kumar@example.com',
+              avatarUrl: '/avatars/user2.jpg',
+              subscriptionPlan: 'essential',
+              registeredAt: '2025-05-07T09:15:00'
+            }
+          ];
+          
+          // Save sample data to localStorage for future use
+          localStorage.setItem('admin_users', JSON.stringify(sampleUsers));
+          setUsers(sampleUsers);
+        }
+      } catch (error) {
+        console.error('Error fetching recent users:', error);
+      }
     }
-  ];
+  }, []);
 
   // Function to format date
   const formatDate = (dateString: string) => {
